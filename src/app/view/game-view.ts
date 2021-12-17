@@ -49,6 +49,12 @@ export class GameView extends View {
   }
 
   public resizeBoardView() {
+    const border = 70;
+    const scale = this.size.width / (this.boardView.width + border);
+
+    this.boardView.scale.x = scale;
+    this.boardView.scale.y = scale;
+
     this.boardView.position = new PIXI.Point(
       (this.size.width - this.boardView.width) / 2,
       (this.size.height - this.boardView.height) / 2

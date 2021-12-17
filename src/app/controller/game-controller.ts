@@ -34,18 +34,14 @@ export class GameController extends Controller {
     this.gameModel = Bottle.get('gameModel');
 
     Event.on(EVENT_START_TOUCH_PUZZLE, (x, y) => {
-
       this.togglePuzzle(x, y);
 
-      Event.emit(EVENT_UPDATE_PUZZLE_VIEW);
+      Event.emit(EVENT_UPDATE_PUZZLE_VIEW, x, y);
       Event.emit(EVENT_UPDATE_HINT_VIEW, x, y);
     });
 
     Event.on(EVENT_END_TOUCH_PUZZLE, (x, y) => {
-      this.clearXPuzzle();
-      this.updateXPuzzles();
-
-      Event.emit(EVENT_UPDATE_PUZZLE_VIEW);
+      Event.emit(EVENT_UPDATE_PUZZLE_VIEW, x, y);
       Event.emit(EVENT_UPDATE_HINT_VIEW, x, y);
 
       if (this.isCompleted()) {
@@ -66,7 +62,6 @@ export class GameController extends Controller {
       this.initHintColumns();
       this.initHintRows();
       this.initPuzzles()
-      this.updateXPuzzles();
 
       Event.emit(EVENT_INIT_BOARD_VIEW);
     });
@@ -274,123 +269,15 @@ export class GameController extends Controller {
   togglePuzzle(x, y) {
     let puzzle = this.gameModel.puzzle[x][y];
 
-    if (puzzle == BLOCK_WHITE || puzzle == BLOCK_X) {
+    if (puzzle == BLOCK_WHITE) {
       puzzle = BLOCK_BLACK;
     } else if (puzzle == BLOCK_BLACK) {
+      puzzle = BLOCK_X;
+    } else if (puzzle === BLOCK_X) {
       puzzle = BLOCK_WHITE;
     }
 
     this.gameModel.puzzle[x][y] = puzzle;
-  }
-
-  clearXPuzzle() {
-    for (let i = 0; i < this.gameModel.puzzle[0].length; i++) {
-      this.clearXPuzzleRow(i);
-    }
-
-    for (let i = 0; i < this.gameModel.puzzle.length; i++) {
-      this.clearXPuzzleColumn(i);
-    }
-  }
-
-  clearXPuzzleRow(i) {
-    const puzzle = this.gameModel.puzzle;
-
-    for (let j = 0; j < puzzle[i].length; j++) {
-      if (puzzle[i][j] === BLOCK_X) {
-        puzzle[i][j] = BLOCK_WHITE;
-      }
-    }
-  }
-
-  clearXPuzzleColumn(i) {
-    const puzzle = this.gameModel.puzzle;
-
-    for (let j = 0; j < puzzle.length; j++) {
-      if (puzzle[j][i] === BLOCK_X) {
-        puzzle[j][i] = BLOCK_WHITE;
-      }
-    }
-  }
-
-  updateXPuzzles() {
-    for (let i = 0; i < this.gameModel.puzzle.length; i++) {
-      this.updateXPuzzleRow(i);
-    }
-
-    for (let i = 0; i < this.gameModel.puzzle[0].length; i++) {
-      this.updateXPuzzleColumn(i);
-    }
-  }
-
-  updateXPuzzleRow(i) {
-    const puzzle = this.gameModel.puzzle;
-    const hintRow = this.gameModel.hintRows[i];
-
-    const current = [];
-
-    let count = 0;
-
-    for (let j = 0; j < puzzle[i].length; j++) {
-      if (puzzle[i][j] != BLOCK_BLACK) {
-        if (count > 0) {
-          current.push(count);
-          count = 0;
-        }
-        continue;
-      }
-      count++;
-    }
-
-    if (count > 0) {
-      current.push(count);
-    }
-
-    if (current.length !== hintRow.length
-      || !current.every((value, index) => value === hintRow[index])) {
-      return;
-    }
-
-    for (let j = 0; j < puzzle[i].length; j++) {
-      if (puzzle[i][j] == BLOCK_WHITE) {
-        puzzle[i][j] = BLOCK_X;
-      }
-    }
-  }
-
-  updateXPuzzleColumn(i) {
-    const puzzle = this.gameModel.puzzle;
-    const hintColumn = this.gameModel.hintColumns[i];
-
-    const current = [];
-
-    let count = 0;
-
-    for (let j = 0; j < puzzle.length; j++) {
-      if (puzzle[j][i] !== BLOCK_BLACK) {
-        if (count > 0) {
-          current.push(count);
-          count = 0;
-        }
-        continue;
-      }
-      count++;
-    }
-
-    if (count > 0) {
-      current.push(count);
-    }
-
-    if (current.length !== hintColumn.length
-      || !current.every((value, index) => value === hintColumn[index])) {
-      return;
-    }
-
-    for (let j = 0; j < puzzle[i].length; j++) {
-      if (puzzle[j][i] === BLOCK_WHITE) {
-        puzzle[j][i] = BLOCK_X;
-      }
-    }
   }
 
   startTimer() {

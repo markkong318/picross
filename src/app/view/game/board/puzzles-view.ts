@@ -57,7 +57,7 @@ export class PuzzlesView extends View {
       Event.emit(EVENT_START_PUZZLE);
     });
 
-    Event.on(EVENT_UPDATE_PUZZLE_VIEW, () => this.updatePuzzlesView());
+    Event.on(EVENT_UPDATE_PUZZLE_VIEW, (x, y) => this.updatePuzzleView(x, y));
     Event.on(EVENT_PLAY_COLORIZE, () => this.playColorize());
     Event.on(EVENT_PLAY_FULL_COLORIZE, () => this.playFullColorize());
     Event.on(EVENT_PLAY_CLEAR_X, () => this.playClearX());
@@ -148,22 +148,28 @@ export class PuzzlesView extends View {
     }
   }
 
+  updatePuzzleView(x, y) {
+    const puzzle = this.gameModel.puzzle;
+
+    switch (puzzle[x][y]) {
+      case BLOCK_WHITE:
+        this.puzzleViews[x][y].drawWhite();
+        break;
+      case BLOCK_BLACK:
+        this.puzzleViews[x][y].drawBlack();
+        break;
+      case BLOCK_X:
+        this.puzzleViews[x][y].drawX();
+        break;
+    }
+  }
+
   updatePuzzlesView() {
     const puzzle = this.gameModel.puzzle;
 
     for (let i = 0; i < this.puzzleViews.length; i++) {
       for (let j = 0; j < this.puzzleViews[i].length; j++) {
-        switch (puzzle[i][j]) {
-          case BLOCK_WHITE:
-            this.puzzleViews[i][j].drawWhite();
-            break;
-          case BLOCK_BLACK:
-            this.puzzleViews[i][j].drawBlack();
-            break;
-          case BLOCK_X:
-            this.puzzleViews[i][j].drawX();
-            break;
-        }
+        this.updatePuzzleView(i, j);
       }
     }
   }
