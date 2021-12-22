@@ -15,8 +15,8 @@ import {
   EVENT_PLAY_COLORIZE,
   EVENT_START_PUZZLE,
   EVENT_PLAY_FULL_COLORIZE,
-  EVENT_REMOVE_TOUCH_EVENT,
-  EVENT_INIT_TOUCH_EVENT
+  EVENT_REMOVE_TOUCH_PUZZLE,
+  EVENT_INIT_TOUCH_PUZZLE
 } from '../../../env/event';
 import Bottle from '../../../../framework/bottle';
 import {BLOCK_HEIGHT, BLOCK_WIDTH} from '../../../env/block';
@@ -62,18 +62,16 @@ export class PuzzlesView extends View {
     Event.on(EVENT_PLAY_FULL_COLORIZE, () => this.playFullColorize());
     Event.on(EVENT_PLAY_CLEAR_X, () => this.playClearX());
 
-    Event.on(EVENT_INIT_TOUCH_EVENT, () => this.initTouchEvent());
-    Event.on(EVENT_REMOVE_TOUCH_EVENT, () => this.removeTouchEvent());
+    Event.on(EVENT_INIT_TOUCH_PUZZLE, () => this.initTouchEvent());
+    Event.on(EVENT_REMOVE_TOUCH_PUZZLE, () => this.removeTouchEvent());
   }
 
   initTouchEvent() {
-    this.on('pointerdown', (event) => {
+    this.on('hammer-panstart', (event) => {
       this.isTouched = true;
 
-      const {x, y} = event.data.getLocalPosition(event.currentTarget)
-
+      const {x, y} = this.toLocal(event.center);
       const {posX, posY} = this.getTouchPosition(x, y);
-
       if (posX === undefined || posY === undefined) {
         return;
       }
@@ -81,15 +79,13 @@ export class PuzzlesView extends View {
       this.touchStart(posX, posY);
     });
 
-    this.on('pointermove', (event) => {
+    this.on('hammer-pan', (event) => {
       if (!this.isTouched) {
         return;
       }
 
-      const {x, y} = event.data.getLocalPosition(event.currentTarget);
-
+      const {x, y} = this.toLocal(event.center);
       const {posX, posY} = this.getTouchPosition(x, y);
-
       if (posX === undefined || posY === undefined) {
         return;
       }
@@ -97,11 +93,9 @@ export class PuzzlesView extends View {
       this.touchStart(posX, posY);
     });
 
-    this.on('pointerup', (event) => {
-      const {x, y} = event.data.getLocalPosition(event.currentTarget);
-
+    this.on('hammer-panend', (event) => {
+      const {x, y} = this.toLocal(event.center);
       const {posX, posY} = this.getTouchPosition(x, y);
-
       if (posX === undefined || posY === undefined) {
         return;
       }
@@ -110,12 +104,23 @@ export class PuzzlesView extends View {
 
       this.isTouched = false;
     });
+
+    this.on('hammer-tap', (event) => {
+      const {x, y} = this.toLocal(event.center);
+      const {posX, posY} = this.getTouchPosition(x, y);
+      if (posX === undefined || posY === undefined) {
+        return;
+      }
+
+      this.touchStart(posX, posY);
+      this.touchEnd(posX, posY);
+    });
   }
 
   removeTouchEvent() {
-    this.off('pointerdown');
-    this.off('pointermove');
-    this.off('pointerup');
+    this.off('hammer-panstart');
+    this.off('hammer-pan');
+    this.off('hammer-panend');
   }
 
   initPuzzlesView() {
@@ -201,7 +206,7 @@ export class PuzzlesView extends View {
     const posX = Math.floor(x / BLOCK_WIDTH);
     const posY = Math.floor(y / BLOCK_HEIGHT);
 
-    if (posX < 0 || posX > puzzleWidth || posY < 0 || posY > puzzleHeight) {
+    if (posX < 0 || posX >= puzzleWidth || posY < 0 || posY >= puzzleHeight) {
       console.log('touch not on puzzle')
       return {};
     }

@@ -1,3 +1,6 @@
+import Connector from 'pixi-hammer';
+import Hammer from 'hammerjs';
+
 import {GameView} from "./view/game-view";
 import {GameModel} from "./model/game-model";
 import {GameController} from "./controller/game-controller";
@@ -9,6 +12,7 @@ export class GameApplication extends Application {
   private gameModel: GameModel;
   private gameController: GameController;
   private gameView: GameView;
+  private connector: Connector;
 
   constructor(options?) {
     super(options);
@@ -27,6 +31,21 @@ export class GameApplication extends Application {
   }
 
   public initScene(): void {
+    var hammertime = new Hammer.Manager(this.view, {
+      recognizers: [
+        [Hammer.Pinch],
+        [Hammer.Pan],
+        [Hammer.Tap],
+        // [Hammer.Tap, {event: 'doubletap', taps: 2, threshold: 7, posThreshold: 25}],
+        // [Hammer.Tap, {event: 'singletap', threshold: 7}],
+        [Hammer.Press, {time: 333, threshold: 3}]
+      ]
+    });
+
+    this.connector = new Connector(this.view, this.renderer.plugins.interaction, hammertime);
+    this.connector.registerHandlerTypes(['tap', 'panstart', 'pan', 'panend', 'pinchstart', 'pinch', 'pinchend']);
+    Bottle.set('connector', this.connector);
+
     Bottle.set('renderer', this.renderer);
 
     this.gameModel = new GameModel();

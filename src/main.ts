@@ -1,9 +1,10 @@
+import * as PIXI from 'pixi.js';
 import FontFaceObserver from 'fontfaceobserver';
 import gsap from 'gsap';
-import PixiPlugin from "gsap/PixiPlugin";
+import PixiPlugin from 'gsap/PixiPlugin';
+import Connector from 'pixi-hammer';
 
-import {GameApplication} from "./app/game-application";
-import * as PIXI from 'pixi.js';
+import {GameApplication} from './app/game-application';
 
 declare global {
   interface Window {
@@ -29,7 +30,7 @@ font.load()
       resizeTo: window,
       antialias: true,
       resolution: 2,
-      autoResize: true
+      autoResize: true,
     });
     document.body.appendChild(app.view);
 

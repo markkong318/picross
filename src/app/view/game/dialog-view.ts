@@ -13,8 +13,14 @@ import {
   EVENT_PLAY_COLORIZE,
   EVENT_PLAY_CLEAN_BACKGROUND,
   EVENT_PLAY_FULL_COLORIZE,
-  EVENT_REMOVE_TOUCH_EVENT,
-  EVENT_INIT_TOUCH_EVENT, EVENT_STOP_TIMER, EVENT_START_PUZZLE, EVENT_PLAY_START, EVENT_START_TIMER
+  EVENT_REMOVE_TOUCH_PUZZLE,
+  EVENT_INIT_TOUCH_PUZZLE,
+  EVENT_STOP_TIMER,
+  EVENT_START_PUZZLE,
+  EVENT_PLAY_START,
+  EVENT_START_TIMER,
+  EVENT_INIT_PINCH,
+  EVENT_REMOVE_PINCH
 } from '../../env/event';
 import {BoardView} from './board-view';
 import {GameModel} from '../../model/game-model';
@@ -54,7 +60,8 @@ export class DialogView extends View {
 
     Event.on(EVENT_COMPLETE_PUZZLE, () => {
       Event.emit(EVENT_STOP_TIMER);
-      Event.emit(EVENT_REMOVE_TOUCH_EVENT);
+      Event.emit(EVENT_REMOVE_TOUCH_PUZZLE);
+      Event.emit(EVENT_REMOVE_PINCH);
 
       setTimeout(() => {
         Event.emit(EVENT_PLAY_CLEAR);
@@ -154,7 +161,9 @@ export class DialogView extends View {
     this.timeline
       .to({}, {
         onComplete: function () {
-          Event.emit(EVENT_INIT_TOUCH_EVENT);
+          Event.emit(EVENT_INIT_TOUCH_PUZZLE);
+          console.log('emit pinch')
+          Event.emit(EVENT_INIT_PINCH);
           Event.emit(EVENT_START_TIMER);
         },
       }, 1);

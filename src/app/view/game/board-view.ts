@@ -25,6 +25,11 @@ export class BoardView extends View {
   private borderPadding: number = 5;
   private puzzleOffset: number = 10;
 
+  private initScale: number;
+  private currentScale: number;
+  private currentX: number;
+  private currentY: number;
+
   constructor() {
     super();
   }
@@ -47,7 +52,6 @@ export class BoardView extends View {
       this.puzzlesView = new PuzzlesView();
       this.puzzlesView.init();
       this.addChild(this.puzzlesView);
-
       Bottle.set('puzzlesView', this.puzzlesView);
 
       this.infoView = new InfoView();
@@ -83,5 +87,104 @@ export class BoardView extends View {
       Event.emit(EVENT_INIT_PUZZLES_VIEW);
       Event.emit(EVENT_UPDATE_BOARD_VIEW_POSITION);
     });
+
+    Event.on(EVENT_UPDATE_BOARD_VIEW_POSITION, () => this.resize());
+
+    this.on('hammer-pinchstart', (e) => this.pinchStart(e));
+    this.on('hammer-pinch', (e) => this.pinch(e));
+    this.on('hammer-pinchend', (e) => this.pinchEnd(e));
+  }
+
+  public resize() {
+    const border = 70;
+    const scale = (<View>this.parent).size.width / (this.width + border);
+
+    this.scale.x = scale;
+    this.scale.y = scale;
+
+    this.position = new PIXI.Point(
+      ((<View>this.parent).size.width - this.width) / 2,
+      ((<View>this.parent).size.height - this.height) / 2
+    );
+
+    this.initScale = scale;
+
+    console.log('scale: ' + scale);
+    console.log('position: ' + this.x + ', ' + this.y);
+    console.log('pivot: ' + this.pivot.x + ', ' + this.pivot.y);
+
+    // this.pivot.x = 100;
+    // this.pivot.y = 100;
+    //
+    // this.x += 100 * scale;
+    // this.y += 100 * scale;
+  }
+
+  public pinchStart(e) {
+    console.log(e);
+
+    this.currentScale = this.scale.x;
+    this.currentX = this.x;
+    this.currentY = this.y;
+
+    // if (e.changedPointers && e.changedPointers[0]) {
+    //   this.pivot.x = e.changedPointers[0].x;
+    //   this.pivot.y = e.changedPointers[0].y;
+    // }
+
+    console.log('this2: ' + this.x +', ' + this.y);
+
+    console.log('center: ' + e.center.x + ', ' + e.center.y);
+
+    const local = this.toLocal(e.center)
+
+    console.log('local center: ' + local.x + ', ' + local.y);
+
+
+    this.pivot = this.toLocal(e.center);
+    // this.pivot.x = 100
+    // this.pivot.y =100
+    // this.pivot = local;
+
+    // this.pivot.x = 100;
+    // this.pivot.y = 100;
+    //
+    // this.x += 100;
+    // this.y += 100
+
+    this.x += this.pivot.x * this.scale.x;
+    this.y += this.pivot.y * this.scale.y;
+
+    this.currentX = this.x;
+    this.currentY = this.y;
+  }
+
+  public pinch(e) {
+    let scale = this.currentScale * e.scale;
+
+    if (scale > 1) {
+      scale = 1;
+    }
+
+    if (scale < this.initScale) {
+      scale = this.initScale;
+    }
+
+    this.scale.x = scale;
+    this.scale.y = scale;
+
+    this.x = this.currentX + e.deltaX;
+    this.y = this.currentY + e.deltaY;
+  }
+
+  public pinchEnd(e) {
+    console.log('this3: ' + this.x +', ' + this.y);
+    console.log(this);
+
+    this.x -= this.pivot.x * this.scale.x;
+    this.y -= this.pivot.y * this.scale.y;
+
+    this.pivot.x = 0;
+    this.pivot.y = 0;
   }
 }

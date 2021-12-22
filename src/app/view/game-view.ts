@@ -1,23 +1,25 @@
 import * as PIXI from 'pixi.js';
 
-import {View} from "../../framework/view";
-import {BoardView} from "./game/board-view";
-import {EVENT_FETCH_ANSWER_IMAGE, EVENT_UPDATE_BOARD_VIEW_POSITION} from "../env/event";
-import Event from "../../framework/event";
-import {DialogView} from "./game/dialog-view";
-import {Size} from "../../framework/size";
-import Bottle from "../../framework/bottle";
-import {BackView} from "./game/back-view";
+import {View} from '../../framework/view';
+import {BoardView} from './game/board-view';
+import {EVENT_FETCH_ANSWER_IMAGE, EVENT_UPDATE_BOARD_VIEW_POSITION} from '../env/event';
+import Event from '../../framework/event';
+import {DialogView} from './game/dialog-view';
+import {Size} from '../../framework/size';
+import Bottle from '../../framework/bottle';
+import {BackView} from './game/back-view';
+import {PinchView} from './game/pinch-view';
 
 export class GameView extends View {
   private backView: BackView;
   private boardView: BoardView;
   private clearView: DialogView;
+  private pinchView: PinchView;
 
   constructor() {
     super();
 
-    Event.on(EVENT_UPDATE_BOARD_VIEW_POSITION, () => this.resizeBoardView());
+    // Event.on(EVENT_UPDATE_BOARD_VIEW_POSITION, () => this.resizeBoardView());
   }
 
   public init() {
@@ -37,6 +39,12 @@ export class GameView extends View {
     this.addChild(this.boardView);
     Bottle.set('boardView', this.boardView);
 
+    this.pinchView = new PinchView();
+    this.pinchView.size = new Size(this.size.width, this.size.height);
+    this.pinchView.init();
+    this.addChild(this.pinchView);
+    Bottle.set('pinchView', this.boardView);
+
     this.clearView = new DialogView();
     this.clearView.size = new Size(this.size.width, this.size.height);
     this.clearView.init();
@@ -48,16 +56,16 @@ export class GameView extends View {
     Event.emit(EVENT_FETCH_ANSWER_IMAGE);
   }
 
-  public resizeBoardView() {
-    const border = 70;
-    const scale = this.size.width / (this.boardView.width + border);
-
-    this.boardView.scale.x = scale;
-    this.boardView.scale.y = scale;
-
-    this.boardView.position = new PIXI.Point(
-      (this.size.width - this.boardView.width) / 2,
-      (this.size.height - this.boardView.height) / 2
-    );
-  }
+  // public resizeBoardView() {
+  //   const border = 70;
+  //   const scale = this.size.width / (this.boardView.width + border);
+  //
+  //   this.boardView.scale.x = scale;
+  //   this.boardView.scale.y = scale;
+  //
+  //   this.boardView.position = new PIXI.Point(
+  //     (this.size.width - this.boardView.width) / 2,
+  //     (this.size.height - this.boardView.height) / 2
+  //   );
+  // }
 }
