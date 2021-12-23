@@ -7,8 +7,6 @@ import {EVENT_INIT_PINCH, EVENT_REMOVE_PINCH} from '../../env/event';
 import Event from '../../../framework/event';
 
 export class PinchView extends View {
-  // private boardView: BoardView;
-
   constructor() {
     super();
   }
@@ -26,67 +24,53 @@ export class PinchView extends View {
   }
 
   public initPinchEvent() {
-    console.log('init pinch');
-
-    this.on('hammer-pinchstart', (e) => {
+    this.on('hammer-pinchstart', (event) => {
       const boardView = Bottle.get('boardView');
-      boardView.emit('hammer-pinchstart', e);
+      boardView.emit('hammer-pinchstart', event);
     });
 
-    this.on('hammer-pinch', (e) => {
+    this.on('hammer-pinch', (event) => {
       const boardView = Bottle.get('boardView');
-      boardView.emit('hammer-pinch', e)
+      boardView.emit('hammer-pinch', event)
     });
 
-    this.on('hammer-pinchend', (e) => {
+    this.on('hammer-pinchend', (event) => {
       const boardView = Bottle.get('boardView');
-      boardView.emit('hammer-pinchend', e);
+      boardView.emit('hammer-pinchend', event);
     });
 
-    this.on('hammer-panstart', (e) => {
+    this.on('hammer-panstart', (event) => {
       console.log('hammer-panstart')
       const puzzlesView = Bottle.get('puzzlesView');
-      puzzlesView.emit('hammer-panstart', e);
+      puzzlesView.emit('hammer-panstart', event);
     });
 
-    this.on('hammer-pan', (e) => {
+    this.on('hammer-pan', (event) => {
       console.log('hammer-pan')
       const puzzlesView = Bottle.get('puzzlesView');
-      puzzlesView.emit('hammer-pan', e);
+      puzzlesView.emit('hammer-pan', event);
     });
 
-    this.on('hammer-panend', (e) => {
+    this.on('hammer-panend', (event) => {
       console.log('hammer-panend')
       const puzzlesView = Bottle.get('puzzlesView');
-      puzzlesView.emit('hammer-panend', e);
+      puzzlesView.emit('hammer-panend', event);
     });
 
-    this.on('hammer-tap', (e) => {
+    this.on('hammer-tap', (event) => {
       console.log('hammer-tap')
       const puzzlesView = Bottle.get('puzzlesView');
-      puzzlesView.emit('hammer-tap', e);
+      puzzlesView.emit('hammer-tap', event);
     });
-
-    // this.on('pointerdown', (e) => {
-    //   const puzzlesView = Bottle.get('puzzlesView');
-    //   puzzlesView.emit('pointerdown', e);
-    // });
-    //
-    // this.on('pointermove', (e) => {
-    //   const puzzlesView = Bottle.get('puzzlesView');
-    //   puzzlesView.emit('pointermove', e);
-    // });
-    //
-    // this.on('pointerup', (e) => {
-    //   const puzzlesView = Bottle.get('puzzlesView');
-    //   puzzlesView.emit('pointerup', e)
-    // });
   }
 
   public removePinchEvent() {
+    this.off('hammer-pinchstart');
     this.off('hammer-pinch');
-    this.off('pointerdown');
-    this.off('pointermove');
-    this.off('pointerup');
+    this.off('hammer-pinchend');
+    this.off('hammer-panstart');
+    this.off('hammer-pan');
+    this.off('hammer-panend');
+    this.off('hammer-tap');
   }
 }

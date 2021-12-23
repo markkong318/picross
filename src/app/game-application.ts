@@ -36,9 +36,6 @@ export class GameApplication extends Application {
         [Hammer.Pinch],
         [Hammer.Pan],
         [Hammer.Tap],
-        // [Hammer.Tap, {event: 'doubletap', taps: 2, threshold: 7, posThreshold: 25}],
-        // [Hammer.Tap, {event: 'singletap', threshold: 7}],
-        [Hammer.Press, {time: 333, threshold: 3}]
       ]
     });
 

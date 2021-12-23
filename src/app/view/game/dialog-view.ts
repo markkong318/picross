@@ -48,6 +48,11 @@ export class DialogView extends View {
   }
 
   init() {
+    const bg = new PIXI.Sprite(PIXI.Texture.EMPTY);
+    bg.width = this.size.width;
+    bg.height = this.size.height;
+    this.addChild(bg);
+
     this.timeline = gsap.timeline();
     this.renderer = Bottle.get('renderer');
     this.gameModel = Bottle.get('gameModel');
@@ -56,6 +61,11 @@ export class DialogView extends View {
       setTimeout(() => {
         Event.emit(EVENT_PLAY_START);
       }, 1000);
+
+      /// test
+      setTimeout(() => {
+        Event.emit(EVENT_COMPLETE_PUZZLE);
+      }, 5000);
     });
 
     Event.on(EVENT_COMPLETE_PUZZLE, () => {
@@ -162,7 +172,6 @@ export class DialogView extends View {
       .to({}, {
         onComplete: function () {
           Event.emit(EVENT_INIT_TOUCH_PUZZLE);
-          console.log('emit pinch')
           Event.emit(EVENT_INIT_PINCH);
           Event.emit(EVENT_START_TIMER);
         },
@@ -273,11 +282,101 @@ export class DialogView extends View {
     this.timeline.clear().restart();
 
     this.puzzlesView = Bottle.get('puzzlesView');
-    this.puzzlesView.position = this.toLocal(this.puzzlesView.getGlobalPosition());
-    this.addChild(this.puzzlesView);
+
+    // this.puzzlesView.position = this.toLocal(this.puzzlesView.getGlobalPosition());
+
+    const startPoint = this.toLocal(
+      this.puzzlesView.parent.toGlobal(
+        new PIXI.Point(
+          this.puzzlesView.x,
+          this.puzzlesView.y,
+        )
+      )
+    );
+    console.log('startPoint')
+    console.log(startPoint)
+
+    // const p2 = new PIXI.Point(
+    //   this.puzzlesView.x + this.puzzlesView.width,
+    //   this.puzzlesView.y + this.puzzlesView.height,
+    // );
+
+    console.log('gl');
+    console.log(this.puzzlesView.getGlobalPosition());
+
+    console.log('wh:' + this.puzzlesView.width + ', ' + this.puzzlesView.height);
+    console.log(this.puzzlesView.getLocalBounds());
+    console.log(this.puzzlesView.getBounds());
+
+    const tip1 = new PIXI.Sprite(PIXI.Texture.WHITE);
+    tip1.tint = 0xff0000
+    tip1.width = 6;
+    tip1.height = 6;
+    this.puzzlesView.parent.addChild(tip1);
+    tip1.x = this.puzzlesView.x + this.puzzlesView.width - 3;
+    tip1.y = this.puzzlesView.y + this.puzzlesView.height - 3 ;
+
+    const endPoint = this.toLocal(
+      this.puzzlesView.parent.toGlobal(
+        new PIXI.Point(
+          this.puzzlesView.x + this.puzzlesView.width,
+          this.puzzlesView.y + this.puzzlesView.height,
+        )
+      )
+    );
+
+    console.log('endPoint: ')
+    console.log(endPoint);
+
+    const tip2 = new PIXI.Sprite(PIXI.Texture.WHITE);
+    tip2.tint = 0x00ff00
+    tip2.width = 10;
+    tip2.height = 10;
+    this.addChild(tip2);
+    tip2.x = startPoint.x - 5;
+    tip2.y = startPoint.y - 5 ;
+
+    const tip3 = new PIXI.Sprite(PIXI.Texture.WHITE);
+    tip3.tint = 0x0000ff
+    tip3.width = 10;
+    tip3.height = 10;
+    this.addChild(tip3);
+    tip3.x = endPoint.x - 5;
+    tip3.y = endPoint.y - 5 ;
+
+//     const bounds = this.puzzlesView.getBounds();
+//
+//     const globalPoint = this.puzzlesView.toGlobal(
+//       new PIXI.Point(
+//         this.puzzlesView.x + this.puzzlesView.getLocalBounds().width,
+//         this.puzzlesView.y + this.puzzlesView.getLocalBounds().height,
+//       )
+//     );
+//
+//     const endPoint = this.toLocal(
+//       new PIXI.Point(
+//         globalPoint.x ,
+//         globalPoint.y,
+//       )
+//     );
+//     //
+//     console.log('p2l:')
+//     console.log(endPoint);
+//
+//
+// //////
+//     this.addChild(this.puzzlesView);
+// ////////
+//
+//     this.puzzlesView.position = startPoint;
+//     this.puzzlesView.width = endPoint.x - startPoint.x;
+//     this.puzzlesView.height = endPoint.y - startPoint.y;
+
+
+
 
     this.boardView = Bottle.get('boardView');
-
+    return;
     this.timeline
       .to(this.boardView, {
         duration: 1,

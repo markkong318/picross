@@ -108,49 +108,14 @@ export class BoardView extends View {
     );
 
     this.initScale = scale;
-
-    console.log('scale: ' + scale);
-    console.log('position: ' + this.x + ', ' + this.y);
-    console.log('pivot: ' + this.pivot.x + ', ' + this.pivot.y);
-
-    // this.pivot.x = 100;
-    // this.pivot.y = 100;
-    //
-    // this.x += 100 * scale;
-    // this.y += 100 * scale;
   }
 
   public pinchStart(e) {
-    console.log(e);
-
     this.currentScale = this.scale.x;
     this.currentX = this.x;
     this.currentY = this.y;
 
-    // if (e.changedPointers && e.changedPointers[0]) {
-    //   this.pivot.x = e.changedPointers[0].x;
-    //   this.pivot.y = e.changedPointers[0].y;
-    // }
-
-    console.log('this2: ' + this.x +', ' + this.y);
-
-    console.log('center: ' + e.center.x + ', ' + e.center.y);
-
-    const local = this.toLocal(e.center)
-
-    console.log('local center: ' + local.x + ', ' + local.y);
-
-
     this.pivot = this.toLocal(e.center);
-    // this.pivot.x = 100
-    // this.pivot.y =100
-    // this.pivot = local;
-
-    // this.pivot.x = 100;
-    // this.pivot.y = 100;
-    //
-    // this.x += 100;
-    // this.y += 100
 
     this.x += this.pivot.x * this.scale.x;
     this.y += this.pivot.y * this.scale.y;
@@ -178,9 +143,6 @@ export class BoardView extends View {
   }
 
   public pinchEnd(e) {
-    console.log('this3: ' + this.x +', ' + this.y);
-    console.log(this);
-
     this.x -= this.pivot.x * this.scale.x;
     this.y -= this.pivot.y * this.scale.y;
 

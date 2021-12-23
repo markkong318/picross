@@ -94,6 +94,10 @@ export class PuzzlesView extends View {
     });
 
     this.on('hammer-panend', (event) => {
+      if (!this.isTouched) {
+        return;
+      }
+
       const {x, y} = this.toLocal(event.center);
       const {posX, posY} = this.getTouchPosition(x, y);
       if (posX === undefined || posY === undefined) {
