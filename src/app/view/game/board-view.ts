@@ -5,7 +5,7 @@ import Bottle from '../../../framework/bottle';
 import Event from '../../../framework/event';
 import {InfoView} from "./board/info-view";
 import {
-  EVENT_INIT_BOARD_VIEW, EVENT_INIT_PUZZLES_VIEW, EVENT_UPDATE_BOARD_VIEW_POSITION,
+  EVENT_INIT_BOARD_VIEW, EVENT_INIT_PUZZLES_VIEW, EVENT_RESIZE_BOARD_VIEW,
 } from '../../env/event';
 import {GameModel} from '../../model/game-model';
 import {PuzzlesView} from './board/puzzles-view';
@@ -85,10 +85,10 @@ export class BoardView extends View {
       this.infoView.position = new PIXI.Point(this.borderPadding, this.borderPadding);
 
       Event.emit(EVENT_INIT_PUZZLES_VIEW);
-      Event.emit(EVENT_UPDATE_BOARD_VIEW_POSITION);
+      Event.emit(EVENT_RESIZE_BOARD_VIEW);
     });
 
-    Event.on(EVENT_UPDATE_BOARD_VIEW_POSITION, () => this.resize());
+    Event.on(EVENT_RESIZE_BOARD_VIEW, () => this.resize());
 
     this.on('hammer-pinchstart', (e) => this.pinchStart(e));
     this.on('hammer-pinch', (e) => this.pinch(e));
@@ -97,7 +97,7 @@ export class BoardView extends View {
 
   public resize() {
     const border = 70;
-    const scale = (<View>this.parent).size.width / (this.width + border);
+    const scale = (<View>this.parent).size.width / (this.width / this.scale.x + border);
 
     this.scale.x = scale;
     this.scale.y = scale;

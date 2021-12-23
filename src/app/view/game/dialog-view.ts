@@ -20,7 +20,7 @@ import {
   EVENT_PLAY_START,
   EVENT_START_TIMER,
   EVENT_INIT_PINCH,
-  EVENT_REMOVE_PINCH
+  EVENT_REMOVE_PINCH, EVENT_RESIZE_BOARD_VIEW
 } from '../../env/event';
 import {BoardView} from './board-view';
 import {GameModel} from '../../model/game-model';
@@ -61,11 +61,6 @@ export class DialogView extends View {
       setTimeout(() => {
         Event.emit(EVENT_PLAY_START);
       }, 1000);
-
-      /// test
-      setTimeout(() => {
-        Event.emit(EVENT_COMPLETE_PUZZLE);
-      }, 5000);
     });
 
     Event.on(EVENT_COMPLETE_PUZZLE, () => {
@@ -266,6 +261,7 @@ export class DialogView extends View {
     this.timeline
       .to({}, {
         onComplete: function () {
+          Event.emit(EVENT_RESIZE_BOARD_VIEW);
           Event.emit(EVENT_PLAY_CLEAR_X);
         },
       }, 1);
@@ -283,8 +279,6 @@ export class DialogView extends View {
 
     this.puzzlesView = Bottle.get('puzzlesView');
 
-    // this.puzzlesView.position = this.toLocal(this.puzzlesView.getGlobalPosition());
-
     const startPoint = this.toLocal(
       this.puzzlesView.parent.toGlobal(
         new PIXI.Point(
@@ -293,28 +287,6 @@ export class DialogView extends View {
         )
       )
     );
-    console.log('startPoint')
-    console.log(startPoint)
-
-    // const p2 = new PIXI.Point(
-    //   this.puzzlesView.x + this.puzzlesView.width,
-    //   this.puzzlesView.y + this.puzzlesView.height,
-    // );
-
-    console.log('gl');
-    console.log(this.puzzlesView.getGlobalPosition());
-
-    console.log('wh:' + this.puzzlesView.width + ', ' + this.puzzlesView.height);
-    console.log(this.puzzlesView.getLocalBounds());
-    console.log(this.puzzlesView.getBounds());
-
-    const tip1 = new PIXI.Sprite(PIXI.Texture.WHITE);
-    tip1.tint = 0xff0000
-    tip1.width = 6;
-    tip1.height = 6;
-    this.puzzlesView.parent.addChild(tip1);
-    tip1.x = this.puzzlesView.x + this.puzzlesView.width - 3;
-    tip1.y = this.puzzlesView.y + this.puzzlesView.height - 3 ;
 
     const endPoint = this.toLocal(
       this.puzzlesView.parent.toGlobal(
@@ -325,58 +297,14 @@ export class DialogView extends View {
       )
     );
 
-    console.log('endPoint: ')
-    console.log(endPoint);
+    this.addChild(this.puzzlesView);
 
-    const tip2 = new PIXI.Sprite(PIXI.Texture.WHITE);
-    tip2.tint = 0x00ff00
-    tip2.width = 10;
-    tip2.height = 10;
-    this.addChild(tip2);
-    tip2.x = startPoint.x - 5;
-    tip2.y = startPoint.y - 5 ;
-
-    const tip3 = new PIXI.Sprite(PIXI.Texture.WHITE);
-    tip3.tint = 0x0000ff
-    tip3.width = 10;
-    tip3.height = 10;
-    this.addChild(tip3);
-    tip3.x = endPoint.x - 5;
-    tip3.y = endPoint.y - 5 ;
-
-//     const bounds = this.puzzlesView.getBounds();
-//
-//     const globalPoint = this.puzzlesView.toGlobal(
-//       new PIXI.Point(
-//         this.puzzlesView.x + this.puzzlesView.getLocalBounds().width,
-//         this.puzzlesView.y + this.puzzlesView.getLocalBounds().height,
-//       )
-//     );
-//
-//     const endPoint = this.toLocal(
-//       new PIXI.Point(
-//         globalPoint.x ,
-//         globalPoint.y,
-//       )
-//     );
-//     //
-//     console.log('p2l:')
-//     console.log(endPoint);
-//
-//
-// //////
-//     this.addChild(this.puzzlesView);
-// ////////
-//
-//     this.puzzlesView.position = startPoint;
-//     this.puzzlesView.width = endPoint.x - startPoint.x;
-//     this.puzzlesView.height = endPoint.y - startPoint.y;
-
-
-
+    this.puzzlesView.position = startPoint;
+    this.puzzlesView.width = endPoint.x - startPoint.x;
+    this.puzzlesView.height = endPoint.y - startPoint.y;
 
     this.boardView = Bottle.get('boardView');
-    return;
+
     this.timeline
       .to(this.boardView, {
         duration: 1,
@@ -404,8 +332,11 @@ export class DialogView extends View {
           x: (this.size.width - this.puzzlesView.width) / 2,
           y: (this.size.height - this.puzzlesView.height) / 2 - 100,
         },
-        onComplete: function () {
+        onComplete: () => {
           Event.emit(EVENT_PLAY_FULL_COLORIZE);
+
+          this.resultSprite.y = this.puzzlesView.y + this.puzzlesView.height + 60;
+          this.resultText.y = this.puzzlesView.y + this.puzzlesView.height + 60;
         }
       }, 3);
 
@@ -423,7 +354,6 @@ export class DialogView extends View {
     this.resultSprite.anchor.x = 0.5;
     this.resultSprite.anchor.y = 0.5;
     this.resultSprite.x = this.size.width / 2;
-    this.resultSprite.y = this.puzzlesView.y + this.puzzlesView.height / 2 + 20;
     this.addChild(this.resultSprite);
 
     this.timeline
@@ -455,7 +385,6 @@ export class DialogView extends View {
     this.resultText.anchor.x = 0.5;
     this.resultText.anchor.y = 0.5;
     this.resultText.x = this.size.width / 2;
-    this.resultText.y = this.puzzlesView.y + this.puzzlesView.height / 2 + 20;
     this.addChild(this.resultText)
 
     this.timeline

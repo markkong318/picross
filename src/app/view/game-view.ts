@@ -2,7 +2,7 @@ import * as PIXI from 'pixi.js';
 
 import {View} from '../../framework/view';
 import {BoardView} from './game/board-view';
-import {EVENT_FETCH_ANSWER_IMAGE, EVENT_UPDATE_BOARD_VIEW_POSITION} from '../env/event';
+import {EVENT_FETCH_ANSWER_IMAGE, EVENT_RESIZE_BOARD_VIEW} from '../env/event';
 import Event from '../../framework/event';
 import {DialogView} from './game/dialog-view';
 import {Size} from '../../framework/size';
@@ -18,8 +18,6 @@ export class GameView extends View {
 
   constructor() {
     super();
-
-    // Event.on(EVENT_UPDATE_BOARD_VIEW_POSITION, () => this.resizeBoardView());
   }
 
   public init() {
@@ -55,17 +53,4 @@ export class GameView extends View {
 
     Event.emit(EVENT_FETCH_ANSWER_IMAGE);
   }
-
-  // public resizeBoardView() {
-  //   const border = 70;
-  //   const scale = this.size.width / (this.boardView.width + border);
-  //
-  //   this.boardView.scale.x = scale;
-  //   this.boardView.scale.y = scale;
-  //
-  //   this.boardView.position = new PIXI.Point(
-  //     (this.size.width - this.boardView.width) / 2,
-  //     (this.size.height - this.boardView.height) / 2
-  //   );
-  // }
 }
