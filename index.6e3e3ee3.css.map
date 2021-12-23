@@ -1,0 +1,1 @@
+{"mappings":"AAAA,WACI,mBAAsB,CACtB,iBAAkB,CAClB,eAAmB,CACnB,kFACJ","sources":["src/assets/fonts/gravity/style.css"],"sourcesContent":["@font-face {\n    font-family: 'gravity';\n    font-style: normal;\n    font-weight: normal;\n    src: local('gravity'), url('./gravity.ttf') format('truetype');\n}\n"],"names":[],"version":3,"file":"index.6e3e3ee3.css.map"}

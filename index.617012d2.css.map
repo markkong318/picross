@@ -1,0 +1,1 @@
+{"mappings":"AAAA,KACA,QAAA,CAEA,eAAA,CADA,SAEA,CAEA,OACA,aACA","sources":["src/main.css"],"sourcesContent":["body {\n    margin: 0;\n    padding: 0;\n    overflow: hidden;\n}\n\ncanvas {\n    display: block;\n}\n"],"names":[],"version":3,"file":"index.617012d2.css.map"}
