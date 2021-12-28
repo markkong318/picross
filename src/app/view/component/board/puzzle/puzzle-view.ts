@@ -29,15 +29,11 @@ export class PuzzleView extends View {
     this.graphics.beginFill(0x323334);
     this.graphics.drawRoundedRect(1, 1, this.size.width - 2, this.size.height - 2, 5);
 
-    this.graphics.interactive = true;
-
     this.addChild(this.graphics);
 
     this.clearXTimeline = Bottle.get('clearXTimeline');
     this.colorizeTimeline = Bottle.get('colorizeTimeline');
     this.fullColorizeTimeline = Bottle.get('fullColorizeTimeline');
-
-    this.interactive = true;
   }
 
   drawWhite() {
