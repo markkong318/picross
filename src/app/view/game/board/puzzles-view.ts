@@ -16,7 +16,7 @@ import {
   EVENT_START_PUZZLE,
   EVENT_PLAY_FULL_COLORIZE,
   EVENT_REMOVE_TOUCH_PUZZLE,
-  EVENT_INIT_TOUCH_PUZZLE
+  EVENT_INIT_TOUCH_PUZZLE, EVENT_SAVE_PUZZLE
 } from '../../../env/event';
 import Bottle from '../../../../framework/bottle';
 import {BLOCK_HEIGHT, BLOCK_WIDTH} from '../../../env/block';
@@ -68,6 +68,10 @@ export class PuzzlesView extends View {
 
   initTouchEvent() {
     this.on('hammer-panstart', (event) => {
+      if (event.maxPointers > 1) {
+        return;
+      }
+
       this.isTouched = true;
 
       const {x, y} = this.toLocal(event.center);
@@ -80,6 +84,9 @@ export class PuzzlesView extends View {
     });
 
     this.on('hammer-pan', (event) => {
+      if (event.maxPointers > 1) {
+        return;
+      }
       if (!this.isTouched) {
         return;
       }
@@ -94,6 +101,9 @@ export class PuzzlesView extends View {
     });
 
     this.on('hammer-panend', (event) => {
+      if (event.maxPointers > 1) {
+        return;
+      }
       if (!this.isTouched) {
         return;
       }
@@ -107,6 +117,8 @@ export class PuzzlesView extends View {
       this.touchEnd(posX, posY);
 
       this.isTouched = false;
+
+      Event.emit(EVENT_SAVE_PUZZLE);
     });
 
     this.on('hammer-tap', (event) => {
@@ -118,6 +130,8 @@ export class PuzzlesView extends View {
 
       this.touchStart(posX, posY);
       this.touchEnd(posX, posY);
+
+      Event.emit(EVENT_SAVE_PUZZLE);
     });
   }
 
@@ -125,6 +139,7 @@ export class PuzzlesView extends View {
     this.off('hammer-panstart');
     this.off('hammer-pan');
     this.off('hammer-panend');
+    this.off('hammer-tap');
   }
 
   initPuzzlesView() {

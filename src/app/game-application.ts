@@ -7,11 +7,13 @@ import {GameController} from "./controller/game-controller";
 import {Application} from "../framework/application"
 import {Size} from "../framework/size";
 import Bottle from "../framework/bottle";
+import {Storage} from './storage/storage';
 
 export class GameApplication extends Application {
   private gameModel: GameModel;
   private gameController: GameController;
   private gameView: GameView;
+  private storage: Storage;
   private connector: Connector;
 
   constructor(options?) {
@@ -31,7 +33,9 @@ export class GameApplication extends Application {
   }
 
   public initScene(): void {
-    var hammertime = new Hammer.Manager(this.view, {
+    Bottle.set('renderer', this.renderer);
+
+    const hammertime = new Hammer.Manager(this.view, {
       recognizers: [
         [Hammer.Pinch],
         [Hammer.Pan],
@@ -43,12 +47,14 @@ export class GameApplication extends Application {
     this.connector.registerHandlerTypes(['tap', 'panstart', 'pan', 'panend', 'pinchstart', 'pinch', 'pinchend']);
     Bottle.set('connector', this.connector);
 
-    Bottle.set('renderer', this.renderer);
-
     this.gameModel = new GameModel();
     Bottle.set('gameModel', this.gameModel);
 
     this.gameController = new GameController();
+
+    this.storage = new Storage();
+    this.storage.init();
+    Bottle.set('storage', this.storage);
 
     const viewWidth = 480;
     const viewHeight = this.getViewHeight(viewWidth);

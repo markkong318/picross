@@ -21,8 +21,11 @@ import {
   EVENT_END_TOUCH_PUZZLE,
   EVENT_UPDATE_TIMER,
   EVENT_START_TIMER,
-  EVENT_STOP_TIMER,
+  EVENT_STOP_TIMER, EVENT_SAVE_PUZZLE,
 } from '../env/event';
+import {Storage} from '../storage/storage';
+import {fromEvent, interval} from 'rxjs';
+import {debounce, scan} from 'rxjs/operators';
 
 export class GameController extends Controller {
   private gameModel: GameModel;
@@ -46,6 +49,8 @@ export class GameController extends Controller {
 
       if (this.isCompleted()) {
         console.log('completed');
+        this.cleanSave();
+
         Event.emit(EVENT_COMPLETE_PUZZLE);
       }
     });
@@ -61,7 +66,8 @@ export class GameController extends Controller {
     Event.on(EVENT_INIT_DATA, () => {
       this.initHintColumns();
       this.initHintRows();
-      this.initPuzzles()
+      this.initPuzzles();
+      this.initAutoSave();
 
       Event.emit(EVENT_INIT_BOARD_VIEW);
     });
@@ -224,18 +230,64 @@ export class GameController extends Controller {
   }
 
   initPuzzles() {
-    const puzzleWidth = this.gameModel.puzzleWidth;
-    const puzzleHeight = this.gameModel.puzzleHeight;
+    let puzzles;
 
-    const puzzles = new Array(puzzleWidth);
-    for (let i = 0; i < puzzles.length; i++) {
-      puzzles[i] = new Array(puzzleHeight);
-      for (let j = 0; j < puzzles[i].length; j++) {
-        puzzles[i][j] = BLOCK_WHITE;
+    const searchParams = Bottle.get('searchParams');
+    const origin = searchParams.get('origin');
+    const answer = searchParams.get('answer');
+    const title = searchParams.get('title');
+
+    const storage = <Storage>Bottle.get('storage');
+
+    puzzles = storage.loadPuzzles(origin, answer, title);
+
+    if (!puzzles) {
+      const puzzleWidth = this.gameModel.puzzleWidth;
+      const puzzleHeight = this.gameModel.puzzleHeight;
+
+      puzzles = new Array(puzzleWidth);
+      for (let i = 0; i < puzzles.length; i++) {
+        puzzles[i] = new Array(puzzleHeight);
+        for (let j = 0; j < puzzles[i].length; j++) {
+          puzzles[i][j] = BLOCK_WHITE;
+        }
       }
     }
 
     this.gameModel.puzzle = puzzles;
+  }
+
+  initAutoSave() {
+    const searchParams = Bottle.get('searchParams');
+    const origin = searchParams.get('origin');
+    const answer = searchParams.get('answer');
+    const title = searchParams.get('title');
+
+    const puzzles = this.gameModel.puzzle;
+
+    const storage = <Storage>Bottle.get('storage');
+
+    const clicks = fromEvent(Event, EVENT_SAVE_PUZZLE);
+    const result = clicks.pipe(
+      scan((i) => ++i, 1),
+      debounce((i) => interval(500 * i))
+    );
+    result.subscribe(x => {
+      console.log('saving...')
+
+      storage.savePuzzles(origin, answer, title, puzzles);
+    });
+  }
+
+  cleanSave() {
+    const searchParams = Bottle.get('searchParams');
+    const origin = searchParams.get('origin');
+    const answer = searchParams.get('answer');
+    const title = searchParams.get('title');
+
+    const storage = <Storage>Bottle.get('storage');
+
+    storage.clearPuzzles(origin, answer, title);
   }
 
   isCompleted() {
