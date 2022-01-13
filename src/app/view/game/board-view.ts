@@ -13,7 +13,9 @@ import {HintColumnsView} from './board/hint-columns-view';
 import {HintRowsView} from './board/hint-rows-view';
 
 export class BoardView extends View {
-  private backgroundGraphics: PIXI.Graphics;
+  private renderer: PIXI.Renderer;
+
+  private backgroundSprite: PIXI.Sprite;
 
   private puzzlesView: PuzzlesView;
   private hintColumnsView: HintColumnsView;
@@ -35,11 +37,12 @@ export class BoardView extends View {
   }
 
   public init() {
-    this.gameModel = Bottle.get('gameModel');
+    this.renderer = <PIXI.Renderer>Bottle.get('renderer');
+    this.gameModel = <GameModel>Bottle.get('gameModel');
 
     Event.on(EVENT_INIT_BOARD_VIEW, () => {
-      this.backgroundGraphics = new PIXI.Graphics();
-      this.addChild(this.backgroundGraphics);
+      this.backgroundSprite = new PIXI.Sprite(PIXI.Texture.EMPTY);
+      this.addChild(this.backgroundSprite);
 
       this.hintColumnsView = new HintColumnsView();
       this.hintColumnsView.init();
@@ -56,16 +59,19 @@ export class BoardView extends View {
 
       this.infoView = new InfoView();
       this.infoView.init();
-      this.addChild(this.infoView)
+      this.addChild(this.infoView);
 
-      this.backgroundGraphics.beginFill(0xffffff);
-      this.backgroundGraphics.drawRoundedRect(
+      const backgroundGraphics = new PIXI.Graphics();
+      backgroundGraphics.beginFill(0xffffff);
+      backgroundGraphics.drawRoundedRect(
         0,
         0,
         this.hintRowsView.width + this.hintColumnsView.width + this.borderPadding * 2,
         this.hintColumnsView.height + this.hintRowsView.height + this.borderPadding * 2,
         8
       );
+
+      this.backgroundSprite.texture = this.renderer.generateTexture(backgroundGraphics, PIXI.SCALE_MODES.LINEAR, 2);
 
       this.puzzlesView.position = new PIXI.Point(
         this.borderPadding + this.hintRowsView.width - this.puzzleOffset,

@@ -4,38 +4,43 @@ import {View} from '../../../../../framework/view';
 import {Size} from '../../../../../framework/size';
 import {HintView} from './hint-view';
 import {BLOCK_WIDTH} from '../../../../env/block';
+import Bottle from '../../../../../framework/bottle';
 
 export class HintColumnView extends View {
-  private graphics: PIXI.Graphics;
   private hintViews: HintView[];
 
   public size = new Size(BLOCK_WIDTH, 150);
-  private radius: number = 10;
 
-  private puzzleOffset: number = 10;
+  private oddTexture: PIXI.RenderTexture;
+  private eventTexture: PIXI.RenderTexture;
+  private selectTexture: PIXI.RenderTexture;
+  private sprite: PIXI.Sprite;
 
   constructor() {
     super();
   }
 
   public init() {
-    this.graphics = new PIXI.Graphics();
-    this.addChild(this.graphics);
+    const hintColumnTexture = Bottle.get('hintColumnTexture');
+
+    this.oddTexture = hintColumnTexture.oddTexture;
+    this.eventTexture = hintColumnTexture.eventTexture;
+    this.selectTexture = hintColumnTexture.selectTexture;
+
+    this.sprite = new PIXI.Sprite();
+    this.addChild(this.sprite);
   }
 
   drawOdd() {
-    this.graphics.beginFill(0xffffff);
-    this.graphics.drawRoundedRect(0, 0, this.size.width, this.size.height + this.radius + this.puzzleOffset, this.radius);
+    this.sprite.texture = this.oddTexture;
   }
 
   drawEven() {
-    this.graphics.beginFill(0xf1f2f3);
-    this.graphics.drawRoundedRect(0, 0, this.size.width, this.size.height + this.radius + this.puzzleOffset, this.radius);
+    this.sprite.texture = this.eventTexture;
   }
 
   drawSelect() {
-    this.graphics.beginFill(0x45d4ff);
-    this.graphics.drawRoundedRect(0, 0, this.size.width, this.size.height + this.radius + this.puzzleOffset, this.radius);
+    this.sprite.texture = this.selectTexture;
   }
 
   drawHints(hits: number[]) {

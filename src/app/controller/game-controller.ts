@@ -47,6 +47,11 @@ export class GameController extends Controller {
       Event.emit(EVENT_UPDATE_PUZZLE_VIEW, x, y);
       Event.emit(EVENT_UPDATE_HINT_VIEW, x, y);
 
+      setTimeout(() => {
+        console.log('EVENT_COMPLETE_PUZZLE')
+        Event.emit(EVENT_COMPLETE_PUZZLE);
+      }, 1000);
+
       if (this.isCompleted()) {
         console.log('completed');
         this.cleanSave();

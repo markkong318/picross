@@ -22,8 +22,10 @@ import Bottle from '../../../../framework/bottle';
 import {BLOCK_HEIGHT, BLOCK_WIDTH} from '../../../env/block';
 
 export class PuzzlesView extends View {
+  private renderer: PIXI.Renderer;
+
   private puzzleViews: PuzzleView[][];
-  private backgroundGraphics: PIXI.Graphics;
+  private backgroundSprite: PIXI.Sprite;
   private gameModel: GameModel;
 
   private posX: number;
@@ -40,7 +42,8 @@ export class PuzzlesView extends View {
   }
 
   init() {
-    this.gameModel = Bottle.get('gameModel');
+    this.renderer = <PIXI.Renderer>Bottle.get('renderer');
+    this.gameModel = <GameModel>Bottle.get('gameModel');
 
     this.clearXTimeline = gsap.timeline();
     Bottle.set('clearXTimeline', this.clearXTimeline);
@@ -148,11 +151,14 @@ export class PuzzlesView extends View {
 
     this.interactive = true;
 
-    this.backgroundGraphics = new PIXI.Graphics();
-    this.addChild(this.backgroundGraphics);
+    const backgroundGraphics = new PIXI.Graphics();
+    backgroundGraphics.beginFill(0x656566);
+    backgroundGraphics.drawRoundedRect(0, 0, BLOCK_WIDTH * puzzleWidth, BLOCK_HEIGHT * puzzleHeight, 5);
 
-    this.backgroundGraphics.beginFill(0x656566);
-    this.backgroundGraphics.drawRoundedRect(-1, -1, BLOCK_WIDTH * puzzleWidth + 2, BLOCK_HEIGHT * puzzleHeight + 2, 5);
+    this.backgroundSprite = new PIXI.Sprite(PIXI.Texture.EMPTY);
+    this.backgroundSprite.texture = this.renderer.generateTexture(backgroundGraphics, PIXI.SCALE_MODES.LINEAR, 2);
+    this.backgroundSprite.position = new PIXI.Point(-1, -1)
+    this.addChild(this.backgroundSprite);
 
     this.puzzleViews = new Array(puzzleWidth);
 
@@ -189,8 +195,6 @@ export class PuzzlesView extends View {
   }
 
   updatePuzzlesView() {
-    const puzzle = this.gameModel.puzzle;
-
     for (let i = 0; i < this.puzzleViews.length; i++) {
       for (let j = 0; j < this.puzzleViews[i].length; j++) {
         this.updatePuzzleView(i, j);

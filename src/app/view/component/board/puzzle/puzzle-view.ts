@@ -4,9 +4,9 @@ import gsap from 'gsap';
 import {View} from '../../../../../framework/view';
 import {Size} from '../../../../../framework/size';
 import Bottle from '../../../../../framework/bottle';
+import {PuzzleTexture} from '../../../../texture/puzzle-texture';
 
 export class PuzzleView extends View {
-  private graphics: PIXI.Graphics;
   private posX: number;
   private posY: number;
 
@@ -16,6 +16,17 @@ export class PuzzleView extends View {
 
   public size = new Size(32, 32);
 
+  private backgroundTexture: PIXI.RenderTexture;
+  private whiteTexture: PIXI.RenderTexture;
+  private blackTexture: PIXI.RenderTexture;
+  private xTexture: PIXI.RenderTexture;
+  private fullTexture: PIXI.RenderTexture;
+
+  private inputSprite: PIXI.Sprite;
+  private clearXSprite: PIXI.Sprite;
+  private colorSprite: PIXI.Sprite;
+  private fullColorSprite: PIXI.Sprite;
+
   constructor(x: number, y: number) {
     super();
 
@@ -24,12 +35,28 @@ export class PuzzleView extends View {
   }
 
   public init() {
-    this.graphics = new PIXI.Graphics();
+    const puzzleTexture = <PuzzleTexture>Bottle.get('puzzleTexture');
 
-    this.graphics.beginFill(0x323334);
-    this.graphics.drawRoundedRect(1, 1, this.size.width - 2, this.size.height - 2, 5);
+    this.backgroundTexture = puzzleTexture.backgroundTexture;
+    this.whiteTexture = puzzleTexture.whiteTexture;
+    this.blackTexture = puzzleTexture.blackTexture;
+    this.xTexture = puzzleTexture.xTexture;
+    this.fullTexture = puzzleTexture.fullTexture;
 
-    this.addChild(this.graphics);
+    this.inputSprite = new PIXI.Sprite(this.backgroundTexture);
+    this.addChild(this.inputSprite);
+
+    this.clearXSprite = new PIXI.Sprite(this.whiteTexture);
+    this.clearXSprite.alpha = 0;
+    this.addChild(this.clearXSprite);
+
+    this.colorSprite = new PIXI.Sprite(this.whiteTexture);
+    this.colorSprite.alpha = 0;
+    this.addChild(this.colorSprite);
+
+    this.fullColorSprite = new PIXI.Sprite(this.fullTexture);
+    this.fullColorSprite.alpha = 0;
+    this.addChild(this.fullColorSprite);
 
     this.clearXTimeline = Bottle.get('clearXTimeline');
     this.colorizeTimeline = Bottle.get('colorizeTimeline');
@@ -37,71 +64,48 @@ export class PuzzleView extends View {
   }
 
   drawWhite() {
-    this.graphics.beginFill(0xffffff);
-    this.graphics.drawRoundedRect(1, 1, this.size.width - 2, this.size.height - 2, 5);
+    this.inputSprite.texture = this.whiteTexture;
   }
 
   drawBlack() {
-    this.graphics.beginFill(0x323334);
-    this.graphics.drawRoundedRect(1, 1, this.size.width - 2, this.size.height - 2, 5);
+    this.inputSprite.texture = this.blackTexture;
   }
 
   drawX() {
-    this.graphics.beginFill(0xffffff);
-    this.graphics.drawRoundedRect(1, 1, this.size.width - 2, this.size.height - 2, 5);
-
-    const style = {
-      width: 4,
-      color: 0xf68310,
-      cap: 'round',
-    };
-
-    // @ts-ignore
-    this.graphics.lineStyle(style)
-      .moveTo(this.size.width / 2 - this.size.width / 5.5, this.size.height / 2 - this.size.height / 5.5)
-      .lineTo(this.size.width / 2 + this.size.width / 5.5, this.size.height / 2 + this.size.height / 5.5);
-
-    // @ts-ignore
-    this.graphics.lineStyle(style)
-      .moveTo(this.size.width / 2 + this.size.width / 5.5, this.size.height / 2 - this.size.height / 5.5)
-      .lineTo(this.size.width / 2 - this.size.width / 5.5, this.size.height / 2 + this.size.height / 5.5);
-
-    this.graphics.lineStyle();
+    this.inputSprite.texture = this.xTexture;
   }
 
   clearX() {
-    this.clearXTimeline.to({},
+    this.clearXTimeline.to(this.clearXSprite,
       {
         duration: 1,
-        onUpdate: function (graphics, width, height) {
-          graphics.beginFill(0xffffff, this.ratio);
-          graphics.drawRoundedRect(1, 1, width - 2, height - 2, 5);
+        pixi: {
+          alpha: 1,
         },
-        onUpdateParams: [this.graphics, this.size.width, this.size.height],
       }, 0);
   }
 
   drawColor(color) {
-    this.colorizeTimeline.to({},
+    this.colorSprite.tint = color;
+
+    this.colorizeTimeline.to(this.colorSprite,
       {
         duration: 1,
-        onUpdate: function (graphics, width, height, color) {
-          graphics.beginFill(color, this.ratio);
-          graphics.drawRoundedRect(1, 1, width - 2, height - 2, 5);
+        pixi: {
+          alpha: 1,
         },
-        onUpdateParams: [this.graphics, this.size.width, this.size.height, color],
       }, 0);
   }
 
   drawFullColor(color) {
-    this.fullColorizeTimeline.to({},
+    this.fullColorSprite.tint = color;
+
+    this.fullColorizeTimeline.to(this.fullColorSprite,
       {
         duration: 1,
-        onUpdate: function (graphics, width, height, color) {
-          graphics.beginFill(color, this.ratio);
-          graphics.drawRect(0, 0, width, height);
+        pixi: {
+          alpha: 1,
         },
-        onUpdateParams: [this.graphics, this.size.width, this.size.height, color],
       }, 0);
   }
 }

@@ -8,9 +8,10 @@ import {GameModel} from '../../../model/game-model';
 import Bottle from '../../../../framework/bottle';
 
 export class InfoView extends View {
+  private renderer: PIXI.Renderer;
   private gameModel: GameModel;
 
-  private graphics: PIXI.Graphics;
+  private backgroundSprite: PIXI.Sprite;
 
   public size = new Size(150, 150);
   private titleText: PIXI.Text;
@@ -21,16 +22,21 @@ export class InfoView extends View {
   }
 
   public init() {
-    this.gameModel = Bottle.get('gameModel');
+    console.log(Bottle);
+    this.renderer = <PIXI.Renderer>Bottle.get('renderer');
+    this.gameModel = <GameModel>Bottle.get('gameModel');
 
-    this.graphics = new PIXI.Graphics();
-    this.addChild(this.graphics);
+    const backgroundGraphics = new PIXI.Graphics();
 
-    this.graphics.beginFill(0x323334);
-    this.graphics.drawRoundedRect(0, 0, this.size.width, this.size.height, 10);
+    backgroundGraphics.beginFill(0x323334);
+    backgroundGraphics.drawRoundedRect(0, 0, this.size.width, this.size.height, 10);
 
-    this.graphics.beginFill(0x000000);
-    this.graphics.drawRoundedRect(5, 5, 135, 17, 10)
+    backgroundGraphics.beginFill(0x000000);
+    backgroundGraphics.drawRoundedRect(5, 5, 135, 17, 10);
+
+    this.backgroundSprite = new PIXI.Sprite(PIXI.Texture.EMPTY);
+    this.backgroundSprite.texture = this.renderer.generateTexture(backgroundGraphics, PIXI.SCALE_MODES.LINEAR, 2);
+    this.addChild(this.backgroundSprite);
 
     this.titleText = new PIXI.Text('PICROSS', {
       fontFamily: 'lato',

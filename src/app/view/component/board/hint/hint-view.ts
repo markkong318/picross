@@ -4,8 +4,6 @@ import {View} from '../../../../../framework/view';
 import {Size} from '../../../../../framework/size';
 
 export class HintView extends View {
-  private graphics: PIXI.Graphics;
-
   public size = new Size(25, 25);
   private text: PIXI.Text;
 
@@ -14,11 +12,10 @@ export class HintView extends View {
   }
 
   public init() {
-    this.graphics = new PIXI.Graphics();
-    this.graphics.lineStyle(1, 0xffffff, 0);
-    this.graphics.drawRect(0, 0, this.size.width, this.size.height);
-
-    this.addChild(this.graphics);
+    const bound = new PIXI.Sprite(PIXI.Texture.EMPTY);
+    bound.width = this.size.width;
+    bound.height = this.size.height;
+    this.addChild(bound);
 
     this.text = new PIXI.Text('0', {
       fontFamily: 'lato',
