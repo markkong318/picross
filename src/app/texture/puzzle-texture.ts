@@ -13,6 +13,7 @@ export class PuzzleTexture {
   public blackTexture: PIXI.RenderTexture;
   public xTexture: PIXI.RenderTexture;
   public fullTexture: PIXI.RenderTexture;
+  public auxLineTexture: PIXI.RenderTexture;
 
   constructor() {
   }

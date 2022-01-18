@@ -12,11 +12,13 @@ import {PinchView} from './game/pinch-view';
 import {PuzzleTexture} from '../texture/puzzle-texture';
 import {HintColumnTexture} from '../texture/hint-column-texture';
 import {HintRowTexture} from '../texture/hint-row-texture';
+import {PuzzlesTexture} from '../texture/puzzles-texture';
 
 export class GameView extends View {
   private background: PIXI.Sprite;
 
   private puzzleTexture: PuzzleTexture;
+  private puzzlesTexture: PuzzlesTexture;
   private hintColumnTexture: HintColumnTexture;
   private hintRowTexture: HintRowTexture;
 
@@ -39,6 +41,10 @@ export class GameView extends View {
     this.puzzleTexture = new PuzzleTexture();
     this.puzzleTexture.init();
     Bottle.set('puzzleTexture', this.puzzleTexture);
+
+    this.puzzlesTexture = new PuzzlesTexture();
+    this.puzzlesTexture.init();
+    Bottle.set('puzzlesTexture', this.puzzlesTexture);
 
     this.hintColumnTexture = new HintColumnTexture();
     this.hintColumnTexture.init();

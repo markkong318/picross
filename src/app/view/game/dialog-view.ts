@@ -20,7 +20,7 @@ import {
   EVENT_PLAY_START,
   EVENT_START_TIMER,
   EVENT_INIT_PINCH,
-  EVENT_REMOVE_PINCH, EVENT_RESIZE_BOARD_VIEW
+  EVENT_REMOVE_PINCH, EVENT_RESIZE_BOARD_VIEW, EVENT_PLAT_CLEAN_HEAD_UP_DISPLAY
 } from '../../env/event';
 import {BoardView} from './board-view';
 import {GameModel} from '../../model/game-model';
@@ -312,6 +312,8 @@ export class DialogView extends View {
           alpha: 0,
         },
       }, 0);
+
+    Event.emit(EVENT_PLAT_CLEAN_HEAD_UP_DISPLAY);
 
     this.timeline
       .to(this.puzzlesView, {

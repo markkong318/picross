@@ -16,10 +16,11 @@ import {
   EVENT_START_PUZZLE,
   EVENT_PLAY_FULL_COLORIZE,
   EVENT_REMOVE_TOUCH_PUZZLE,
-  EVENT_INIT_TOUCH_PUZZLE, EVENT_SAVE_PUZZLE
+  EVENT_INIT_TOUCH_PUZZLE, EVENT_SAVE_PUZZLE, EVENT_PLAT_CLEAN_HEAD_UP_DISPLAY, EVENT_UPDATE_LOCK
 } from '../../../env/event';
 import Bottle from '../../../../framework/bottle';
 import {BLOCK_HEIGHT, BLOCK_WIDTH} from '../../../env/block';
+import {PuzzlesTexture} from '../../../texture/puzzles-texture';
 
 export class PuzzlesView extends View {
   private renderer: PIXI.Renderer;
@@ -35,7 +36,15 @@ export class PuzzlesView extends View {
   private colorizeTimeline: gsap.core.Timeline;
   private fullColorizeTimeline: gsap.core.Timeline;
 
+  private clearHeadUpDisplayTimeline: gsap.core.Timeline;
+
   private isTouched: boolean = false;
+
+  private auxLineSprites = [];
+  private lockSprite: PIXI.Sprite;
+  private floatLockSprite: PIXI.Sprite;
+
+  private floatLockTimeline: gsap.core.Timeline;
 
   constructor() {
     super();
@@ -44,6 +53,8 @@ export class PuzzlesView extends View {
   init() {
     this.renderer = <PIXI.Renderer>Bottle.get('renderer');
     this.gameModel = <GameModel>Bottle.get('gameModel');
+
+    this.clearHeadUpDisplayTimeline = gsap.timeline();
 
     this.clearXTimeline = gsap.timeline();
     Bottle.set('clearXTimeline', this.clearXTimeline);
@@ -56,6 +67,8 @@ export class PuzzlesView extends View {
 
     Event.on(EVENT_INIT_PUZZLES_VIEW, () => {
       this.initPuzzlesView();
+      this.initAuxLines();
+      this.initLock();
       this.updatePuzzlesView();
       Event.emit(EVENT_START_PUZZLE);
     });
@@ -64,9 +77,15 @@ export class PuzzlesView extends View {
     Event.on(EVENT_PLAY_COLORIZE, () => this.playColorize());
     Event.on(EVENT_PLAY_FULL_COLORIZE, () => this.playFullColorize());
     Event.on(EVENT_PLAY_CLEAR_X, () => this.playClearX());
+    Event.on(EVENT_PLAT_CLEAN_HEAD_UP_DISPLAY, () => {
+      this.playClearAuxLines();
+      this.playClearLock();
+    });
 
     Event.on(EVENT_INIT_TOUCH_PUZZLE, () => this.initTouchEvent());
     Event.on(EVENT_REMOVE_TOUCH_PUZZLE, () => this.removeTouchEvent());
+
+    Event.on(EVENT_UPDATE_LOCK, (x, y) => this.setUpdatePosition(x, y));
   }
 
   initTouchEvent() {
@@ -263,11 +282,132 @@ export class PuzzlesView extends View {
     this.posY = posY;
 
     Event.emit(EVENT_START_TOUCH_PUZZLE, posY, posX);
+    Event.emit(EVENT_UPDATE_LOCK, posX, posY);
   }
 
   touchEnd(posX, posY) {
     this.posX = -1;
     this.posY = -1;
     Event.emit(EVENT_END_TOUCH_PUZZLE, posY, posX);
+    Event.emit(EVENT_UPDATE_LOCK, posX, posY);
+  }
+
+  initAuxLines() {
+    const puzzlesTexture = <PuzzlesTexture>Bottle.get('puzzlesTexture');
+
+    const puzzleWidth = this.gameModel.puzzleWidth;
+    const puzzleHeight = this.gameModel.puzzleHeight;
+
+    for (let i = 1; i < puzzleWidth; i++) {
+      if (i % 5) {
+        continue;
+      }
+
+      const color = (i / 5) % 2 ? 0x00ff00 : 0xff00ff;
+
+      const sprite = new PIXI.Sprite(puzzlesTexture.auxLineTexture);
+      sprite.width = 2;
+      sprite.height = BLOCK_HEIGHT * puzzleHeight;
+      sprite.x = BLOCK_WIDTH * i - 1;
+      sprite.y = 0;
+      sprite.tint = color;
+      this.addChild(sprite);
+
+      this.auxLineSprites.push(sprite);
+    }
+
+    for (let i = 1; i < puzzleHeight; i++) {
+      if (i % 5) {
+        continue;
+      }
+
+      const color = (i / 5) % 2 ? 0x00ff00 : 0xff00ff;
+
+      const sprite = new PIXI.Sprite(puzzlesTexture.auxLineTexture);
+      sprite.width = BLOCK_WIDTH * puzzleWidth;
+      sprite.height = 2;
+      sprite.x = 0;
+      sprite.y = BLOCK_HEIGHT * i - 1;
+      sprite.tint = color;
+      this.addChild(sprite);
+
+      this.auxLineSprites.push(sprite);
+    }
+  }
+
+  playClearAuxLines() {
+    for (let i = 0; i < this.auxLineSprites.length; i++) {
+      this.clearHeadUpDisplayTimeline
+        .to(this.auxLineSprites[i], {
+          duration: 1,
+          pixi: {
+            alpha: 0,
+          },
+        }, 0);
+    }
+  }
+
+  initLock() {
+    const texture = <PuzzlesTexture>Bottle.get('puzzlesTexture');
+
+    this.lockSprite = new PIXI.Sprite(texture.lockTexture);
+    this.lockSprite.alpha = 0;
+    this.lockSprite.x = -2;
+    this.lockSprite.y = -2;
+    this.lockSprite.tint = 0x45d4ff;
+    this.addChild(this.lockSprite);
+
+    this.floatLockSprite = new PIXI.Sprite(texture.lockTexture);
+    this.floatLockSprite.alpha = 0;
+    this.floatLockSprite.x = -2;
+    this.floatLockSprite.y = -2;
+    this.floatLockSprite.tint = 0x0277fd;
+    this.addChild(this.floatLockSprite);
+
+    this.floatLockTimeline = gsap.timeline();
+    this.floatLockTimeline.pause();
+    this.floatLockTimeline
+      .to(this.floatLockSprite, {
+        duration: 1,
+        pixi: {
+          alpha: 0,
+        },
+        repeat: -1,
+        yoyo: true,
+      }, 0);
+
+  }
+
+  playClearLock() {
+    this.clearHeadUpDisplayTimeline
+      .to(this.lockSprite, {
+        duration: 1,
+        pixi: {
+          alpha: 0,
+        },
+      }, 0);
+
+    this.clearHeadUpDisplayTimeline
+      .to(this.floatLockSprite, {
+        duration: 1,
+        pixi: {
+          alpha: 0,
+        },
+      }, 0);
+  }
+
+  setUpdatePosition(posX, posY) {
+    this.lockSprite.alpha = 1;
+    this.floatLockSprite.alpha = 1;
+
+    if (this.floatLockTimeline.paused()) {
+      this.floatLockTimeline.play();
+    }
+
+    this.lockSprite.x = posX * BLOCK_WIDTH - 2;
+    this.lockSprite.y = posY * BLOCK_HEIGHT - 2;
+
+    this.floatLockSprite.x = posX * BLOCK_WIDTH - 2;
+    this.floatLockSprite.y = posY * BLOCK_HEIGHT - 2;
   }
 }
