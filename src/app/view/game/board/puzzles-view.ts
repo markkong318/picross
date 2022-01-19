@@ -379,6 +379,8 @@ export class PuzzlesView extends View {
   }
 
   playClearLock() {
+    this.floatLockTimeline.pause();
+
     this.clearHeadUpDisplayTimeline
       .to(this.lockSprite, {
         duration: 1,

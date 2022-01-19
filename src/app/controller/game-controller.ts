@@ -21,7 +21,7 @@ import {
   EVENT_END_TOUCH_PUZZLE,
   EVENT_UPDATE_TIMER,
   EVENT_START_TIMER,
-  EVENT_STOP_TIMER, EVENT_SAVE_PUZZLE,
+  EVENT_STOP_TIMER, EVENT_SAVE_PUZZLE, EVENT_UPDATE_ROW_HINT_VIEW_SOLVED, EVENT_UPDATE_COLUMN_HINT_VIEW_SOLVED,
 } from '../env/event';
 import {Storage} from '../storage/storage';
 import {fromEvent, interval} from 'rxjs';
@@ -38,6 +38,8 @@ export class GameController extends Controller {
 
     Event.on(EVENT_START_TOUCH_PUZZLE, (x, y) => {
       this.togglePuzzle(x, y);
+      this.checkRowSolved(x);
+      this.checkColumnSolved(y);
 
       Event.emit(EVENT_UPDATE_PUZZLE_VIEW, x, y);
       Event.emit(EVENT_UPDATE_HINT_VIEW, x, y);
@@ -235,8 +237,6 @@ export class GameController extends Controller {
   }
 
   initPuzzles() {
-    let puzzles;
-
     const searchParams = Bottle.get('searchParams');
     const origin = searchParams.get('origin');
     const answer = searchParams.get('answer');
@@ -244,7 +244,10 @@ export class GameController extends Controller {
 
     const storage = <Storage>Bottle.get('storage');
 
-    puzzles = storage.loadPuzzles(origin, answer, title);
+    let {
+      puzzles,
+      timer,
+    } = storage.loadPuzzles(origin, answer, title);
 
     if (!puzzles) {
       const puzzleWidth = this.gameModel.puzzleWidth;
@@ -259,28 +262,34 @@ export class GameController extends Controller {
       }
     }
 
+    if (!timer) {
+      timer = 0;
+    }
+
     this.gameModel.puzzle = puzzles;
+    this.gameModel.timer = timer;
   }
 
   initAutoSave() {
-    const searchParams = Bottle.get('searchParams');
-    const origin = searchParams.get('origin');
-    const answer = searchParams.get('answer');
-    const title = searchParams.get('title');
-
-    const puzzles = this.gameModel.puzzle;
-
-    const storage = <Storage>Bottle.get('storage');
-
     const clicks = fromEvent(Event, EVENT_SAVE_PUZZLE);
     const result = clicks.pipe(
       scan((i) => ++i, 1),
       debounce((i) => interval(500 * i))
     );
     result.subscribe(x => {
+      const searchParams = Bottle.get('searchParams');
+      const origin = searchParams.get('origin');
+      const answer = searchParams.get('answer');
+      const title = searchParams.get('title');
+
+      const storage = <Storage>Bottle.get('storage');
+
+      const puzzles = this.gameModel.puzzle;
+      const timer = this.gameModel.timer;
+
       console.log('saving...')
 
-      storage.savePuzzles(origin, answer, title, puzzles);
+      storage.savePuzzles(origin, answer, title, puzzles, timer);
     });
   }
 
@@ -321,6 +330,69 @@ export class GameController extends Controller {
     }
 
     return ret;
+  }
+
+  checkRowSolved(x) {
+    const puzzle = this.gameModel.puzzle;
+    const answer = this.gameModel.answer;
+
+    let solved = true;
+
+    // TODO: match black count only
+    for (let i = 0; i < puzzle.length; i++) {
+      if (puzzle[x][i] === BLOCK_WHITE) {
+        solved = false;
+        break;
+      }
+
+      if (puzzle[x][i] === BLOCK_BLACK && answer[x][i] !== BLOCK_BLACK) {
+        solved = false;
+        break;
+      }
+
+      if (puzzle[x][i] === BLOCK_X && answer[x][i] !== BLOCK_WHITE) {
+        solved = false;
+        break;
+      }
+    }
+
+    if (!solved) {
+      return;
+    }
+
+    Event.emit(EVENT_UPDATE_ROW_HINT_VIEW_SOLVED);
+  }
+
+  checkColumnSolved(y) {
+    console.log('checkColumnSolved')
+    const puzzle = this.gameModel.puzzle;
+    const answer = this.gameModel.answer;
+
+    let solved = true;
+
+    // TODO: match black count only
+    for (let i = 0; i < puzzle.length; i++) {
+      if (puzzle[i][y] === BLOCK_WHITE) {
+        solved = false;
+        break;
+      }
+
+      if (puzzle[i][y] === BLOCK_BLACK && answer[i][y] !== BLOCK_BLACK) {
+        solved = false;
+        break;
+      }
+
+      if (puzzle[i][y] === BLOCK_X && answer[i][y] !== BLOCK_WHITE) {
+        solved = false;
+        break;
+      }
+    }
+
+    if (!solved) {
+      return;
+    }
+
+    Event.emit(EVENT_UPDATE_COLUMN_HINT_VIEW_SOLVED);
   }
 
   togglePuzzle(x, y) {

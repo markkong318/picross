@@ -6,18 +6,21 @@ export class Storage {
 
   }
 
-  savePuzzles(origin: string, answer: string, title: string, puzzles: number[][]) {
-    const puzzlesStr = JSON.stringify(puzzles);
-    localStorage.setItem(`${origin}-${answer}-${title}`, puzzlesStr);
+  savePuzzles(origin: string, answer: string, title: string, puzzles: number[][], timer: number) {
+    const data = JSON.stringify({
+      puzzles,
+      timer,
+    });
+    localStorage.setItem(`${origin}-${answer}-${title}`, data);
   }
 
   loadPuzzles(origin: string, answer: string, title: string) {
-    const puzzlesStr = localStorage.getItem(`${origin}-${answer}-${title}`);
-    if (!puzzlesStr) {
-      return;
+    const data = localStorage.getItem(`${origin}-${answer}-${title}`);
+    if (!data) {
+      return {};
     }
 
-    return JSON.parse(puzzlesStr);
+    return JSON.parse(data);
   }
 
   clearPuzzles(origin: string, answer: string, title: string) {

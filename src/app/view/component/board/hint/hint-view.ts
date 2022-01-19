@@ -27,10 +27,18 @@ export class HintView extends View {
     this.text.anchor.y = 0.5;
     this.text.x = this.width / 2;
     this.text.y = this.height / 2;
-    this.addChild(this.text)
+    this.addChild(this.text);
   }
 
   public setText(text) {
     this.text.text = text;
+  }
+
+  public drawSolved() {
+    this.text.style.fill[0] = '#373737';
+  }
+
+  public drawNotSolved() {
+    this.text.style.fill[0] = '#a6a6a6';
   }
 }

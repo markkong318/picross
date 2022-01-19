@@ -59,4 +59,16 @@ export class HintColumnView extends View {
       this.hintViews.push(hintView);
     }
   }
+
+  drawSolved() {
+    for (let i = 0; i < this.hintViews.length; i++) {
+      this.hintViews[i].drawSolved();
+    }
+  }
+
+  drawNotSolved() {
+    for (let i = 0; i < this.hintViews.length; i++) {
+      this.hintViews[i].drawNotSolved();
+    }
+  }
 }
