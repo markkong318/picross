@@ -11,6 +11,8 @@ import {GameModel} from '../../model/game-model';
 import {PuzzlesView} from './board/puzzles-view';
 import {HintColumnsView} from './board/hint-columns-view';
 import {HintRowsView} from './board/hint-rows-view';
+import {LockHudView} from './hud/lock-hud-view';
+import {AuxLineHudView} from './hud/aux-line-hud-view';
 
 export class BoardView extends View {
   private renderer: PIXI.Renderer;
@@ -21,6 +23,9 @@ export class BoardView extends View {
   private hintColumnsView: HintColumnsView;
   private hintRowsView: HintRowsView;
   private infoView: InfoView;
+
+  private lockHudView: LockHudView;
+  private auxLineHudView: AuxLineHudView;
 
   private gameModel: GameModel;
 
@@ -37,8 +42,8 @@ export class BoardView extends View {
   }
 
   public init() {
-    this.renderer = <PIXI.Renderer>Bottle.get('renderer');
-    this.gameModel = <GameModel>Bottle.get('gameModel');
+    this.renderer = Bottle.get('renderer');
+    this.gameModel = Bottle.get('gameModel');
 
     Event.on(EVENT_INIT_BOARD_VIEW, () => {
       this.backgroundSprite = new PIXI.Sprite(PIXI.Texture.EMPTY);
@@ -56,6 +61,14 @@ export class BoardView extends View {
       this.puzzlesView.init();
       this.addChild(this.puzzlesView);
       Bottle.set('puzzlesView', this.puzzlesView);
+
+      this.auxLineHudView = new AuxLineHudView();
+      this.auxLineHudView.init();
+      this.addChild(this.auxLineHudView);
+
+      this.lockHudView = new LockHudView();
+      this.lockHudView.init();
+      this.addChild(this.lockHudView);
 
       this.infoView = new InfoView();
       this.infoView.init();
