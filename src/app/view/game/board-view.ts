@@ -5,7 +5,7 @@ import Bottle from '../../../framework/bottle';
 import Event from '../../../framework/event';
 import {InfoView} from "./board/info-view";
 import {
-  EVENT_INIT_BOARD_VIEW, EVENT_INIT_PUZZLES_VIEW, EVENT_RESIZE_BOARD_VIEW,
+  EVENT_INIT_BOARD_VIEW, EVENT_INIT_PUZZLES_VIEW, EVENT_RESIZE_BOARD_VIEW, EVENT_UPDATE_HINT_VIEW_SOLVED,
 } from '../../env/event';
 import {GameModel} from '../../model/game-model';
 import {PuzzlesView} from './board/puzzles-view';
@@ -105,6 +105,7 @@ export class BoardView extends View {
 
       Event.emit(EVENT_INIT_PUZZLES_VIEW);
       Event.emit(EVENT_RESIZE_BOARD_VIEW);
+      Event.emit(EVENT_UPDATE_HINT_VIEW_SOLVED);
     });
 
     Event.on(EVENT_RESIZE_BOARD_VIEW, () => this.resize());

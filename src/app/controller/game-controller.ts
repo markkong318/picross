@@ -21,7 +21,11 @@ import {
   EVENT_END_TOUCH_PUZZLE,
   EVENT_UPDATE_TIMER,
   EVENT_START_TIMER,
-  EVENT_STOP_TIMER, EVENT_SAVE_PUZZLE, EVENT_UPDATE_ROW_HINT_VIEW_SOLVED, EVENT_UPDATE_COLUMN_HINT_VIEW_SOLVED,
+  EVENT_STOP_TIMER,
+  EVENT_SAVE_PUZZLE,
+  EVENT_UPDATE_ROW_HINT_VIEW_SOLVED,
+  EVENT_UPDATE_COLUMN_HINT_VIEW_SOLVED,
+  EVENT_UPDATE_ROW_HINT_VIEW_NOT_SOLVED, EVENT_UPDATE_COLUMN_HINT_VIEW_NOT_SOLVED, EVENT_UPDATE_HINT_VIEW_SOLVED,
 } from '../env/event';
 import {Storage} from '../storage/storage';
 import {fromEvent, interval} from 'rxjs';
@@ -37,9 +41,10 @@ export class GameController extends Controller {
     this.gameModel = Bottle.get('gameModel');
 
     Event.on(EVENT_START_TOUCH_PUZZLE, (x, y) => {
+      console.log(`(${x}, ${y}`);
       this.togglePuzzle(x, y);
-      this.checkRowSolved(x);
-      this.checkColumnSolved(y);
+      this.checkRowSolved(y);
+      this.checkColumnSolved(x);
 
       Event.emit(EVENT_UPDATE_PUZZLE_VIEW, x, y);
       Event.emit(EVENT_UPDATE_HINT_VIEW, x, y);
@@ -50,8 +55,8 @@ export class GameController extends Controller {
       Event.emit(EVENT_UPDATE_HINT_VIEW, x, y);
 
       setTimeout(() => {
-        // console.log('EVENT_COMPLETE_PUZZLE')
-        // Event.emit(EVENT_COMPLETE_PUZZLE);
+        console.log('EVENT_COMPLETE_PUZZLE')
+        Event.emit(EVENT_COMPLETE_PUZZLE);
       }, 1000);
 
       if (this.isCompleted()) {
@@ -77,6 +82,11 @@ export class GameController extends Controller {
       this.initAutoSave();
 
       Event.emit(EVENT_INIT_BOARD_VIEW);
+    });
+
+    Event.on(EVENT_UPDATE_HINT_VIEW_SOLVED, () => {
+      this.checkColumnsSolved();
+      this.checkRowsSolved();
     });
 
     Event.on(EVENT_START_TIMER, () => this.startTimer());
@@ -110,13 +120,16 @@ export class GameController extends Controller {
           for (let j = 0; j < answers[i].length; j++) {
             answers[i][j] =
               (
-                data[(i * answers[i].length + j) * 4] +
-                data[(i * answers[i].length + j) * 4 + 1] +
-                data[(i * answers[i].length + j) * 4 + 2]
+                data[(j * canvas.width + i) * 4] +
+                data[(j * canvas.width + i) * 4 + 1] +
+                data[(j * canvas.width + i) * 4 + 2]
               ) / 3 < 128 ? BLOCK_BLACK : BLOCK_WHITE;
 
-            console.log(`ans (${i}, ${j}) => rgb(${data[(i * answers[i].length + j) * 4]}, ${data[(i * answers[i].length + j) * 4 + 1]}, ${data[(i * answers[i].length + j) * 4 + 2]}) alpha: ${data[(i * answers[i].length + j) * 4 + 3]}`)
+            if (data[(j * canvas.width + i) * 4 + 3] <= 128) {
+              answers[i][j] = BLOCK_WHITE;
+            }
 
+            console.log(`ans (${i}, ${j}) => rgb(${data[(j * canvas.width + i) * 4]}, ${data[(j * canvas.width + i) * 4 + 1]}, ${data[(j * canvas.width + i) * 4 + 2]}) alpha: ${data[(j * canvas.width + i) * 4 + 3]}`)
           }
         }
 
@@ -154,12 +167,12 @@ export class GameController extends Controller {
           for (let j = 0; j < origins[i].length; j++) {
             origins[i][j] =
               (
-                data[(i * origins[i].length + j) * 4] * 256 * 256 +
-                data[(i * origins[i].length + j) * 4 + 1] * 256 +
-                data[(i * origins[i].length + j) * 4 + 2]
+                data[(j * canvas.width + i) * 4] * 256 * 256 +
+                data[(j * canvas.width + i) * 4 + 1] * 256 +
+                data[(j * canvas.width + i) * 4 + 2]
               );
 
-            console.log(`(${i}, ${j}) => rgb(${data[(i * origins[i].length + j) * 4]}, ${data[(i * origins[i].length + j) * 4 + 1]}, ${data[(i * origins[i].length + j) * 4 + 2]})`)
+            // console.log(`(${i}, ${j}) => rgb(${data[(j * canvas.width + i) * 4]}, ${data[(j * canvas.width + i) * 4 + 1]}, ${data[(j * canvas.width + i) * 4 + 2]})`)
           }
         }
 
@@ -176,18 +189,17 @@ export class GameController extends Controller {
 
   initHintRows() {
     const answer = this.gameModel.answer;
-    const puzzleHeight = this.gameModel.puzzleHeight;
 
-    const hintRows = new Array(puzzleHeight);
+    const hintRows = new Array(this.gameModel.puzzleHeight);
     for (let i = 0; i < hintRows.length; i++) {
       hintRows[i] = [];
     }
 
-    for (let i = 0; i < answer.length; i++) {
+    for (let i = 0; i < answer[0].length; i++) {
       let count = 0;
 
-      for (let j = 0; j < answer[i].length; j++) {
-        if (answer[i][j] === BLOCK_WHITE) {
+      for (let j = 0; j < answer.length; j++) {
+        if (answer[j][i] === BLOCK_WHITE) {
           if (count > 0) {
             hintRows[i].push(count);
             count = 0;
@@ -207,18 +219,17 @@ export class GameController extends Controller {
 
   initHintColumns() {
     const answer = this.gameModel.answer;
-    const puzzleWidth = this.gameModel.puzzleWidth;
 
-    const hintColumns = new Array(puzzleWidth);
+    const hintColumns = new Array(this.gameModel.puzzleWidth);
     for (let i = 0; i < hintColumns.length; i++) {
       hintColumns[i] = [];
     }
 
-    for (let i = 0; i < answer[0].length; i++) {
+    for (let i = 0; i < answer.length; i++) {
       let count = 0;
 
-      for (let j = 0; j < answer.length; j++) {
-        if (answer[j][i] === BLOCK_WHITE) {
+      for (let j = 0; j < answer[i].length; j++) {
+        if (answer[i][j] === BLOCK_WHITE) {
           if (count > 0) {
             hintColumns[i].push(count);
             count = 0;
@@ -266,8 +277,21 @@ export class GameController extends Controller {
       timer = 0;
     }
 
-    this.gameModel.puzzle = puzzles;
+    // this.gameModel.puzzle = puzzles;
+    this.gameModel.puzzle = this.gameModel.answer;
     this.gameModel.timer = timer;
+  }
+
+  checkRowsSolved() {
+    for (let i = 0; i < this.gameModel.puzzleHeight; i++) {
+      this.checkRowSolved(i);
+    }
+  }
+
+  checkColumnsSolved() {
+    for (let i = 0; i < this.gameModel.puzzleWidth; i++) {
+      this.checkColumnSolved(i);
+    }
   }
 
   initAutoSave() {
@@ -332,67 +356,92 @@ export class GameController extends Controller {
     return ret;
   }
 
-  checkRowSolved(x) {
+  checkRowSolved(y) {
+    const hintRows = this.gameModel.hintRows;
     const puzzle = this.gameModel.puzzle;
-    const answer = this.gameModel.answer;
+
+    const target = [];
+
+    let count = 0;
+    for (let i = 0; i < puzzle.length; i++) {
+      if (puzzle[i][y] === BLOCK_WHITE || puzzle[i][y] === BLOCK_X) {
+        if (count > 0) {
+          target.push(count);
+          count = 0;
+        }
+        continue;
+      }
+      count++;
+    }
+
+    if (count > 0) {
+      target.push(count);
+    }
 
     let solved = true;
 
-    // TODO: match black count only
-    for (let i = 0; i < puzzle.length; i++) {
-      if (puzzle[x][i] === BLOCK_WHITE) {
-        solved = false;
-        break;
-      }
-
-      if (puzzle[x][i] === BLOCK_BLACK && answer[x][i] !== BLOCK_BLACK) {
-        solved = false;
-        break;
-      }
-
-      if (puzzle[x][i] === BLOCK_X && answer[x][i] !== BLOCK_WHITE) {
-        solved = false;
-        break;
+    if (hintRows[y].length !== target.length) {
+      solved = false;
+    } else {
+      for (let i = 0; i < target.length; i++) {
+        if (target[i] !== hintRows[y][i]) {
+          solved = false;
+        }
       }
     }
 
     if (!solved) {
+      Event.emit(EVENT_UPDATE_ROW_HINT_VIEW_NOT_SOLVED, y);
       return;
     }
 
-    Event.emit(EVENT_UPDATE_ROW_HINT_VIEW_SOLVED);
+    Event.emit(EVENT_UPDATE_ROW_HINT_VIEW_SOLVED, y);
   }
 
-  checkColumnSolved(y) {
+  checkColumnSolved(x) {
     console.log('checkColumnSolved')
+    const hintColumns = this.gameModel.hintColumns;
     const puzzle = this.gameModel.puzzle;
-    const answer = this.gameModel.answer;
+
+    const target = [];
+
+    let count = 0;
+    for (let i = 0; i < puzzle[x].length; i++) {
+      if (puzzle[x][i] === BLOCK_WHITE || puzzle[x][i] === BLOCK_X) {
+        if (count > 0) {
+          target.push(count);
+          count = 0;
+        }
+        continue;
+      }
+      count++;
+    }
+
+    if (count > 0) {
+      target.push(count);
+    }
+
+    console.log(target);
+    console.log(hintColumns[x]);
 
     let solved = true;
 
-    // TODO: match black count only
-    for (let i = 0; i < puzzle.length; i++) {
-      if (puzzle[i][y] === BLOCK_WHITE) {
-        solved = false;
-        break;
-      }
-
-      if (puzzle[i][y] === BLOCK_BLACK && answer[i][y] !== BLOCK_BLACK) {
-        solved = false;
-        break;
-      }
-
-      if (puzzle[i][y] === BLOCK_X && answer[i][y] !== BLOCK_WHITE) {
-        solved = false;
-        break;
+    if (hintColumns[x].length !== target.length) {
+      solved = false;
+    } else {
+      for (let i = 0; i < target.length; i++) {
+        if (target[i] !== hintColumns[x][i]) {
+          solved = false;
+        }
       }
     }
 
     if (!solved) {
+      Event.emit(EVENT_UPDATE_COLUMN_HINT_VIEW_NOT_SOLVED, x);
       return;
     }
 
-    Event.emit(EVENT_UPDATE_COLUMN_HINT_VIEW_SOLVED);
+    Event.emit(EVENT_UPDATE_COLUMN_HINT_VIEW_SOLVED, x);
   }
 
   togglePuzzle(x, y) {

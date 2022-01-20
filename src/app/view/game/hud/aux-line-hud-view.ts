@@ -16,24 +16,26 @@ export class AuxLineHudView extends View {
   private puzzlesView: PuzzlesView;
   private gameModel: GameModel;
 
-  private auxLineSprites = [];
+  private sprites: PIXI.Sprite[] = [];
 
-  private clearHeadUpDisplayTimeline: gsap.core.Timeline;
+  private clearTimeline: gsap.core.Timeline;
 
   init() {
     this.puzzlesView = Bottle.get('puzzlesView');
     this.gameModel = Bottle.get('gameModel');
 
     Event.on(EVENT_INIT_PUZZLES_VIEW, () => {
-      this.initAuxLines();
+      this.initLines();
     });
 
     Event.on(EVENT_PLAT_CLEAN_HEAD_UP_DISPLAY, () => {
-      this.playClearAuxLines();
+      this.playClearLines();
     });
+
+    this.clearTimeline = gsap.timeline();
   }
 
-  initAuxLines() {
+  initLines() {
     const puzzlesTexture = Bottle.get('puzzlesTexture');
 
     const puzzleWidth = this.gameModel.puzzleWidth;
@@ -54,7 +56,7 @@ export class AuxLineHudView extends View {
       sprite.tint = color;
       this.addChild(sprite);
 
-      this.auxLineSprites.push(sprite);
+      this.sprites.push(sprite);
     }
 
     for (let i = 1; i < puzzleHeight; i++) {
@@ -72,14 +74,14 @@ export class AuxLineHudView extends View {
       sprite.tint = color;
       this.addChild(sprite);
 
-      this.auxLineSprites.push(sprite);
+      this.sprites.push(sprite);
     }
   }
 
-  playClearAuxLines() {
-    for (let i = 0; i < this.auxLineSprites.length; i++) {
-      this.clearHeadUpDisplayTimeline
-        .to(this.auxLineSprites[i], {
+  playClearLines() {
+    for (let i = 0; i < this.sprites.length; i++) {
+      this.clearTimeline
+        .to(this.sprites[i], {
           duration: 1,
           pixi: {
             alpha: 0,

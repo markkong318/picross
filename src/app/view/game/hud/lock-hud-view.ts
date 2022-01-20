@@ -12,12 +12,12 @@ import {EVENT_INIT_PUZZLES_VIEW, EVENT_PLAT_CLEAN_HEAD_UP_DISPLAY, EVENT_UPDATE_
 export class LockHudView extends View {
   private puzzlesView: PuzzlesView;
 
-  private lockSprite: PIXI.Sprite;
-  private floatLockSprite: PIXI.Sprite;
+  private sprite: PIXI.Sprite;
+  private animeSprite: PIXI.Sprite;
 
-  private floatLockTimeline: gsap.core.Timeline;
+  private animeTimeline: gsap.core.Timeline;
 
-  private clearHeadUpDisplayTimeline: gsap.core.Timeline;
+  private clearTimeline: gsap.core.Timeline;
 
   init() {
     this.puzzlesView = Bottle.get('puzzlesView');
@@ -30,26 +30,28 @@ export class LockHudView extends View {
       this.playClearLock();
     });
 
-    Event.on(EVENT_UPDATE_LOCK, (x, y) => this.setUpdatePosition(x, y));
+    Event.on(EVENT_UPDATE_LOCK, (x, y) => {
+      this.setUpdatePosition(x, y);
+    });
   }
 
   initLock() {
     const texture = <PuzzlesTexture>Bottle.get('puzzlesTexture');
 
-    this.lockSprite = new PIXI.Sprite(texture.lockTexture);
-    this.lockSprite.alpha = 0;
-    this.lockSprite.tint = 0x45d4ff;
-    this.addChild(this.lockSprite);
+    this.sprite = new PIXI.Sprite(texture.lockTexture);
+    this.sprite.alpha = 0;
+    this.sprite.tint = 0x45d4ff;
+    this.addChild(this.sprite);
 
-    this.floatLockSprite = new PIXI.Sprite(texture.lockTexture);
-    this.floatLockSprite.alpha = 0;
-    this.floatLockSprite.tint = 0x0277fd;
-    this.addChild(this.floatLockSprite);
+    this.animeSprite = new PIXI.Sprite(texture.lockTexture);
+    this.animeSprite.alpha = 0;
+    this.animeSprite.tint = 0x0277fd;
+    this.addChild(this.animeSprite);
 
-    this.floatLockTimeline = gsap.timeline();
-    this.floatLockTimeline.pause();
-    this.floatLockTimeline
-      .to(this.floatLockSprite, {
+    this.animeTimeline = gsap.timeline();
+    this.animeTimeline.pause();
+    this.animeTimeline
+      .to(this.animeSprite, {
         duration: 1,
         pixi: {
           alpha: 0,
@@ -58,21 +60,22 @@ export class LockHudView extends View {
         yoyo: true,
       }, 0);
 
+    this.clearTimeline = gsap.timeline();
   }
 
   playClearLock() {
-    this.floatLockTimeline.pause();
+    this.animeTimeline.pause();
 
-    this.clearHeadUpDisplayTimeline
-      .to(this.lockSprite, {
+    this.clearTimeline
+      .to(this.sprite, {
         duration: 1,
         pixi: {
           alpha: 0,
         },
       }, 0);
 
-    this.clearHeadUpDisplayTimeline
-      .to(this.floatLockSprite, {
+    this.clearTimeline
+      .to(this.animeSprite, {
         duration: 1,
         pixi: {
           alpha: 0,
@@ -81,17 +84,17 @@ export class LockHudView extends View {
   }
 
   setUpdatePosition(posX, posY) {
-    this.lockSprite.alpha = 1;
-    this.floatLockSprite.alpha = 1;
+    this.sprite.alpha = 1;
+    this.animeSprite.alpha = 1;
 
-    if (this.floatLockTimeline.paused()) {
-      this.floatLockTimeline.play();
+    if (this.animeTimeline.paused()) {
+      this.animeTimeline.play();
     }
 
-    this.lockSprite.x = this.puzzlesView.x + posX * BLOCK_WIDTH - 2;
-    this.lockSprite.y = this.puzzlesView.y + posY * BLOCK_HEIGHT - 2;
+    this.sprite.x = this.puzzlesView.x + posX * BLOCK_WIDTH - 2;
+    this.sprite.y = this.puzzlesView.y + posY * BLOCK_HEIGHT - 2;
 
-    this.floatLockSprite.x = this.puzzlesView.x + posX * BLOCK_WIDTH - 2;
-    this.floatLockSprite.y = this.puzzlesView.y + posY * BLOCK_HEIGHT - 2;
+    this.animeSprite.x = this.puzzlesView.x + posX * BLOCK_WIDTH - 2;
+    this.animeSprite.y = this.puzzlesView.y + posY * BLOCK_HEIGHT - 2;
   }
 }

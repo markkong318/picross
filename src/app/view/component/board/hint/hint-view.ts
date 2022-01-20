@@ -19,7 +19,7 @@ export class HintView extends View {
 
     this.text = new PIXI.Text('0', {
       fontFamily: 'lato',
-      fill: ['#a6a6a6'],
+      fill: '#373737',
       fontSize: 25,
       fontWeight: 'bold',
     });
@@ -35,10 +35,10 @@ export class HintView extends View {
   }
 
   public drawSolved() {
-    this.text.style.fill[0] = '#373737';
+    this.text.style.fill = '#a6a6a6';
   }
 
   public drawNotSolved() {
-    this.text.style.fill[0] = '#a6a6a6';
+    this.text.style.fill = '#373737';
   }
 }

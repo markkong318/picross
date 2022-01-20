@@ -4,7 +4,8 @@ import {View} from '../../../../framework/view';
 import {GameModel} from '../../../model/game-model';
 import Event from '../../../../framework/event';
 import {
-  EVENT_UPDATE_HINT_VIEW,
+  EVENT_UPDATE_COLUMN_HINT_VIEW_NOT_SOLVED, EVENT_UPDATE_COLUMN_HINT_VIEW_SOLVED,
+  EVENT_UPDATE_HINT_VIEW, EVENT_UPDATE_ROW_HINT_VIEW_NOT_SOLVED, EVENT_UPDATE_ROW_HINT_VIEW_SOLVED,
 } from '../../../env/event';
 import Bottle from '../../../../framework/bottle';
 import {BLOCK_WIDTH} from '../../../env/block';
@@ -41,7 +42,9 @@ export class HintColumnsView extends View {
       this.hintColumnViews.push(hintColumnView);
     }
 
-    Event.on(EVENT_UPDATE_HINT_VIEW, (x, y) => this.updateSelect(y));
+    Event.on(EVENT_UPDATE_HINT_VIEW, (x, y) => this.updateSelect(x));
+    Event.on(EVENT_UPDATE_COLUMN_HINT_VIEW_NOT_SOLVED, (idx) => this.updateNotSolved(idx));
+    Event.on(EVENT_UPDATE_COLUMN_HINT_VIEW_SOLVED, (idx) => this.updateSolved(idx));
   }
 
   updateSelect(idx) {
@@ -56,5 +59,13 @@ export class HintColumnsView extends View {
         }
       }
     }
+  }
+
+  updateSolved(idx) {
+    this.hintColumnViews[idx].drawSolved();
+  }
+
+  updateNotSolved(idx) {
+    this.hintColumnViews[idx].drawNotSolved();
   }
 }

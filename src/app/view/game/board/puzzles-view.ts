@@ -35,8 +35,6 @@ export class PuzzlesView extends View {
   private colorizeTimeline: gsap.core.Timeline;
   private fullColorizeTimeline: gsap.core.Timeline;
 
-  private clearHeadUpDisplayTimeline: gsap.core.Timeline;
-
   private isTouched: boolean = false;
 
   constructor() {
@@ -44,10 +42,8 @@ export class PuzzlesView extends View {
   }
 
   init() {
-    this.renderer = <PIXI.Renderer>Bottle.get('renderer');
-    this.gameModel = <GameModel>Bottle.get('gameModel');
-
-    this.clearHeadUpDisplayTimeline = gsap.timeline();
+    this.renderer = Bottle.get('renderer');
+    this.gameModel = Bottle.get('gameModel');
 
     this.clearXTimeline = gsap.timeline();
     Bottle.set('clearXTimeline', this.clearXTimeline);
@@ -153,6 +149,9 @@ export class PuzzlesView extends View {
     const puzzleWidth = this.gameModel.puzzleWidth;
     const puzzleHeight = this.gameModel.puzzleHeight;
 
+    console.log(`puzzleWidth: ${puzzleWidth}`);
+    console.log(`puzzleHeight: ${puzzleHeight}`);
+
     this.interactive = true;
 
     const backgroundGraphics = new PIXI.Graphics();
@@ -173,7 +172,7 @@ export class PuzzlesView extends View {
     for (let i = 0; i < this.puzzleViews.length; i++) {
       for (let j = 0; j < this.puzzleViews[i].length; j++) {
         this.puzzleViews[i][j] = new PuzzleView(i, j);
-        this.puzzleViews[i][j].position = new PIXI.Point(j * this.puzzleViews[i][j].size.height, i * this.puzzleViews[i][j].size.width);
+        this.puzzleViews[i][j].position = new PIXI.Point(i * this.puzzleViews[i][j].size.width, j * this.puzzleViews[i][j].size.height);
         this.puzzleViews[i][j].init();
         this.puzzleViews[i][j].drawWhite();
 
@@ -266,14 +265,14 @@ export class PuzzlesView extends View {
     this.posX = posX;
     this.posY = posY;
 
-    Event.emit(EVENT_START_TOUCH_PUZZLE, posY, posX);
+    Event.emit(EVENT_START_TOUCH_PUZZLE, posX, posY);
     Event.emit(EVENT_UPDATE_LOCK, posX, posY);
   }
 
   touchEnd(posX, posY) {
     this.posX = -1;
     this.posY = -1;
-    Event.emit(EVENT_END_TOUCH_PUZZLE, posY, posX);
+    Event.emit(EVENT_END_TOUCH_PUZZLE, posX, posY);
     Event.emit(EVENT_UPDATE_LOCK, posX, posY);
   }
 }

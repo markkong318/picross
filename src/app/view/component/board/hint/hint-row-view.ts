@@ -5,6 +5,7 @@ import {Size} from '../../../../../framework/size';
 import {HintView} from './hint-view';
 import {BLOCK_HEIGHT} from '../../../../env/block';
 import Bottle from '../../../../../framework/bottle';
+import gsap from 'gsap';
 
 export class HintRowView extends View {
   private hintViews: HintView[];
@@ -14,7 +15,11 @@ export class HintRowView extends View {
   private oddTexture: PIXI.RenderTexture;
   private eventTexture: PIXI.RenderTexture;
   private selectTexture: PIXI.RenderTexture;
+
   private sprite: PIXI.Sprite;
+  private selectedSprite: PIXI.Sprite;
+
+  private animeTimeline: gsap.core.Timeline;
 
   constructor() {
     super();
@@ -29,18 +34,35 @@ export class HintRowView extends View {
 
     this.sprite = new PIXI.Sprite();
     this.addChild(this.sprite);
+
+    this.selectedSprite = new PIXI.Sprite(this.selectTexture);
+    this.addChild(this.selectedSprite);
+
+    this.animeTimeline = gsap.timeline();
+    this.animeTimeline
+      .to(this.selectedSprite, {
+        duration: 1,
+        pixi: {
+          alpha: 0.6,
+        },
+        repeat: -1,
+        yoyo: true,
+      }, 0);
   }
 
   drawOdd() {
+    this.selectedSprite.visible = false;
     this.sprite.texture = this.oddTexture;
   }
 
   drawEven() {
+    this.selectedSprite.visible = false;
     this.sprite.texture = this.eventTexture;
   }
 
   drawSelect() {
-    this.sprite.texture = this.selectTexture;
+    this.sprite.visible = false;
+    this.selectedSprite.visible = true;
   }
 
   drawHints(hits: number[]) {
@@ -57,6 +79,18 @@ export class HintRowView extends View {
       this.addChild(hintView);
 
       this.hintViews.push(hintView);
+    }
+  }
+
+  drawSolved() {
+    for (let i = 0; i < this.hintViews.length; i++) {
+      this.hintViews[i].drawSolved();
+    }
+  }
+
+  drawNotSolved() {
+    for (let i = 0; i < this.hintViews.length; i++) {
+      this.hintViews[i].drawNotSolved();
     }
   }
 }
