@@ -52,11 +52,13 @@ export class HintRowView extends View {
 
   drawOdd() {
     this.selectedSprite.visible = false;
+    this.sprite.visible = true;
     this.sprite.texture = this.oddTexture;
   }
 
   drawEven() {
     this.selectedSprite.visible = false;
+    this.sprite.visible = true;
     this.sprite.texture = this.eventTexture;
   }
 

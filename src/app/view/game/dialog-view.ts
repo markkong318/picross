@@ -20,12 +20,19 @@ import {
   EVENT_PLAY_START,
   EVENT_START_TIMER,
   EVENT_INIT_PINCH,
-  EVENT_REMOVE_PINCH, EVENT_RESIZE_BOARD_VIEW, EVENT_PLAT_CLEAN_HEAD_UP_DISPLAY
+  EVENT_REMOVE_PINCH,
+  EVENT_RESIZE_BOARD_VIEW,
+  EVENT_PLAT_CLEAN_HEAD_UP_DISPLAY,
+  EVENT_PLAY_TRANSITION
 } from '../../env/event';
 import {BoardView} from './board-view';
 import {GameModel} from '../../model/game-model';
 
 export class DialogView extends View {
+  private backgroundSprite: PIXI.Sprite;
+
+  private transitionSprite: PIXI.Sprite;
+
   private startSprite: PIXI.Sprite;
   private startText: PIXI.Text;
 
@@ -48,10 +55,16 @@ export class DialogView extends View {
   }
 
   init() {
-    const bg = new PIXI.Sprite(PIXI.Texture.EMPTY);
-    bg.width = this.size.width;
-    bg.height = this.size.height;
-    this.addChild(bg);
+    this.backgroundSprite = new PIXI.Sprite(PIXI.Texture.EMPTY);
+    this.backgroundSprite.width = this.size.width;
+    this.backgroundSprite.height = this.size.height;
+    this.addChild(this.backgroundSprite);
+
+    this.transitionSprite = new PIXI.Sprite(PIXI.Texture.WHITE);
+    this.transitionSprite.width = this.size.width;
+    this.transitionSprite.height = this.size.height;
+    this.transitionSprite.alpha = 0;
+    this.addChild(this.transitionSprite);
 
     this.timeline = gsap.timeline();
     this.renderer = Bottle.get('renderer');
@@ -69,13 +82,38 @@ export class DialogView extends View {
       Event.emit(EVENT_REMOVE_PINCH);
 
       setTimeout(() => {
-        Event.emit(EVENT_PLAY_CLEAR);
-        Event.emit(EVENT_PLAY_CLEAN_BACKGROUND);
-      }, 1000);
+        Event.emit(EVENT_PLAY_TRANSITION);
+      }, 500);
     });
     Event.on(EVENT_PLAY_START, () => this.drawStart());
+    Event.on(EVENT_PLAY_TRANSITION, () => this.drawTransition())
     Event.on(EVENT_PLAY_CLEAR, () => this.drawClear());
     Event.on(EVENT_PLAY_RESULT, () => this.drawResult());
+  }
+
+  drawTransition() {
+    this.timeline.clear().restart();
+
+    this.timeline
+      .to(this.transitionSprite, {
+        duration: 1,
+        pixi: {
+          alpha: 1,
+        },
+        onComplete: function() {
+          Event.emit(EVENT_RESIZE_BOARD_VIEW);
+        },
+      }, 0)
+      .to(this.transitionSprite, {
+        duration: 1,
+        pixi: {
+          alpha: 0,
+        },
+        onComplete: function() {
+          Event.emit(EVENT_PLAY_CLEAR);
+          Event.emit(EVENT_PLAY_CLEAN_BACKGROUND);
+        }
+      }, 1);
   }
 
   drawStart() {
@@ -261,7 +299,6 @@ export class DialogView extends View {
     this.timeline
       .to({}, {
         onComplete: function () {
-          Event.emit(EVENT_RESIZE_BOARD_VIEW);
           Event.emit(EVENT_PLAY_CLEAR_X);
         },
       }, 1);

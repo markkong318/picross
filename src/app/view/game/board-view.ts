@@ -5,7 +5,10 @@ import Bottle from '../../../framework/bottle';
 import Event from '../../../framework/event';
 import {InfoView} from "./board/info-view";
 import {
-  EVENT_INIT_BOARD_VIEW, EVENT_INIT_PUZZLES_VIEW, EVENT_RESIZE_BOARD_VIEW, EVENT_UPDATE_HINT_VIEW_SOLVED,
+  EVENT_INIT_BOARD_VIEW,
+  EVENT_INIT_PUZZLES_VIEW,
+  EVENT_RESIZE_BOARD_VIEW,
+  EVENT_UPDATE_HINT_VIEW_SOLVED,
 } from '../../env/event';
 import {GameModel} from '../../model/game-model';
 import {PuzzlesView} from './board/puzzles-view';
@@ -147,8 +150,8 @@ export class BoardView extends View {
   public pinch(e) {
     let scale = this.currentScale * e.scale;
 
-    if (scale > 1) {
-      scale = 1;
+    if (scale > 2) {
+      scale = 2;
     }
 
     if (scale < this.initScale) {

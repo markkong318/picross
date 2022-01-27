@@ -57,11 +57,13 @@ export class HintColumnView extends View {
 
   drawEven() {
     this.selectedSprite.visible = false;
+    this.sprite.visible = true;
     this.sprite.texture = this.eventTexture;
   }
 
   drawSelect() {
     this.sprite.visible = false;
+    this.sprite.visible = true;
     this.selectedSprite.visible = true;
   }
 

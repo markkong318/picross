@@ -54,15 +54,13 @@ export class GameController extends Controller {
       Event.emit(EVENT_UPDATE_PUZZLE_VIEW, x, y);
       Event.emit(EVENT_UPDATE_HINT_VIEW, x, y);
 
-      setTimeout(() => {
-        console.log('EVENT_COMPLETE_PUZZLE')
-        Event.emit(EVENT_COMPLETE_PUZZLE);
-      }, 1000);
+      // setTimeout(() => {
+      //   console.log('EVENT_COMPLETE_PUZZLE')
+      //   Event.emit(EVENT_COMPLETE_PUZZLE);
+      // }, 1000);
 
       if (this.isCompleted()) {
         console.log('completed');
-        this.cleanSave();
-
         Event.emit(EVENT_COMPLETE_PUZZLE);
       }
     });
@@ -79,6 +77,7 @@ export class GameController extends Controller {
       this.initHintColumns();
       this.initHintRows();
       this.initPuzzles();
+      this.initGodMode();
       this.initAutoSave();
 
       Event.emit(EVENT_INIT_BOARD_VIEW);
@@ -277,8 +276,7 @@ export class GameController extends Controller {
       timer = 0;
     }
 
-    // this.gameModel.puzzle = puzzles;
-    this.gameModel.puzzle = this.gameModel.answer;
+    this.gameModel.puzzle = puzzles;
     this.gameModel.timer = timer;
   }
 
@@ -291,6 +289,31 @@ export class GameController extends Controller {
   checkColumnsSolved() {
     for (let i = 0; i < this.gameModel.puzzleWidth; i++) {
       this.checkColumnSolved(i);
+    }
+  }
+
+  initGodMode() {
+    const searchParams = Bottle.get('searchParams');
+    const god = searchParams.get('god') || '0';
+
+    if (god) {
+      console.log('god mode on');
+
+      const answer = this.gameModel.answer;
+      const puzzle = this.gameModel.puzzle;
+
+      for (let i = 0; i < answer.length; i++) {
+        for (let j = 0; j < answer[i].length; j++){
+          switch (answer[i][j]) {
+            case BLOCK_BLACK:
+              puzzle[i][j] = BLOCK_BLACK;
+              break;
+            case BLOCK_WHITE:
+              puzzle[i][j] = BLOCK_X;
+              break;
+          }
+        }
+      }
     }
   }
 
@@ -399,7 +422,6 @@ export class GameController extends Controller {
   }
 
   checkColumnSolved(x) {
-    console.log('checkColumnSolved')
     const hintColumns = this.gameModel.hintColumns;
     const puzzle = this.gameModel.puzzle;
 
@@ -420,9 +442,6 @@ export class GameController extends Controller {
     if (count > 0) {
       target.push(count);
     }
-
-    console.log(target);
-    console.log(hintColumns[x]);
 
     let solved = true;
 
