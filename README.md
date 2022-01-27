@@ -1,4 +1,13 @@
-# PICROSS 8x8
+# PICROSS
+
+This is a picross-like game for html5
+
+It supports
+- Picross s6 style ui
+- Two fingers resize for large puzzle
+- Auto save
+
+![img.png](img.png)
 
 Game which is forked from `parcel-pixijs-quickstarter` and apply MVC
 
@@ -7,10 +16,10 @@ Game which is forked from `parcel-pixijs-quickstarter` and apply MVC
 
 ```bash
 # clone the repo.
-git git@github.com:markkong318/picross-8x8.git
+git git@github.com:markkong318/picros.git
 
 # go to the repo
-cd picross-8x8
+cd picross
 
 # install the dependencies via npm
 npm install
@@ -20,7 +29,7 @@ npm run start
 ```
 go to [http://localhost:1234](http://localhost:1234) in your browser. Done.
 
-DEMO: [https://markkong318.github.io/picross-8x8/](https://markkong318.github.io/picross-8x8/)
+DEMO: [https://markkong318.github.io/picross/](https://markkong318.github.io/picross/)
 
 ### npm scripts
 
@@ -34,7 +43,7 @@ DEMO: [https://markkong318.github.io/picross-8x8/](https://markkong318.github.io
 
 ### Prepare
 
-Prepare two 8x8 jpg files (png has alpha channel problem, not suggested)
+Prepare two same size jpg files (png has alpha channel problem, not suggested)
 
 1. Origin image: Normal color image
 2. Answer image: Mark the black block as black (0x000000) and others as white (0xffffff)
@@ -49,6 +58,12 @@ The link format should be
 https://i.imgur.com/jjVYPNF.jpg
 ```
 
+You could use this tool to get the real imgur url
+
+```
+https://imgur-direct-links.herokuapp.com/
+```
+
 ### Create link
 
 Append the text after `https://i.imgur.com/` as parameter
@@ -58,5 +73,5 @@ Append the text after `https://i.imgur.com/` as parameter
 - title: the text in the clear screen
 
 ```
-https://markkong318.github.io/picross-8x8/?origin=jjVYPNF.jpg&answer=jjVYPNF.jpg&title=WARRIOR
+https://markkong318.github.io/picross/?origin=jjVYPNF.jpg&answer=jjVYPNF.jpg&title=WARRIOR
 ```
