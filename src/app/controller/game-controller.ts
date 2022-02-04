@@ -294,7 +294,7 @@ export class GameController extends Controller {
 
   initGodMode() {
     const searchParams = Bottle.get('searchParams');
-    const god = searchParams.get('god') || '0';
+    const god = parseInt(searchParams.get('god') || '0');
 
     if (god) {
       console.log('god mode on');
