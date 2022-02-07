@@ -14,13 +14,11 @@
   "license": "MIT",
   "dependencies": {
     "blueimp-load-image": "^5.16.0",
-    "flatted": "^3.2.2",
     "fontfaceobserver": "^2.1.0",
     "gsap": "^3.7.1",
     "hammerjs": "^2.0.8",
     "pixi-hammer": "git+ssh://git@github.com/mralbobo/pixi-hammer.git",
     "pixi.js": "~5.3.3",
-    "power-di": "^2.4.8",
     "rxjs": "^7.5.1"
   },
   "devDependencies": {
