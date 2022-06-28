@@ -2,7 +2,6 @@ import * as PIXI from 'pixi.js';
 import FontFaceObserver from 'fontfaceobserver';
 import gsap from 'gsap';
 import PixiPlugin from 'gsap/PixiPlugin';
-import Connector from 'pixi-hammer';
 
 import {GameApplication} from './app/game-application';
 
@@ -19,7 +18,7 @@ font.load()
   .then(() => {
     window.PIXI = PIXI;
 
-    PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
+    PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.LINEAR;
 
     PixiPlugin.registerPIXI(PIXI);
     gsap.registerPlugin(PixiPlugin);

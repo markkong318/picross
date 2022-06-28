@@ -22,7 +22,7 @@ import {
   EVENT_INIT_PINCH,
   EVENT_REMOVE_PINCH,
   EVENT_RESIZE_BOARD_VIEW,
-  EVENT_PLAT_CLEAN_HEAD_UP_DISPLAY,
+  EVENT_PLAY_CLEAN_HEAD_UP_DISPLAY,
   EVENT_PLAY_TRANSITION
 } from '../../env/event';
 import {BoardView} from './board-view';
@@ -92,6 +92,18 @@ export class DialogView extends View {
   }
 
   drawTransition() {
+    this.boardView = Bottle.get('boardView');
+
+    const playNext = () => {
+      Event.emit(EVENT_PLAY_CLEAR);
+      Event.emit(EVENT_PLAY_CLEAN_BACKGROUND);
+    }
+
+    if (!this.boardView.isMoved() && !this.boardView.isScaled()) {
+      playNext();
+      return;
+    }
+
     this.timeline.clear().restart();
 
     this.timeline
@@ -110,8 +122,7 @@ export class DialogView extends View {
           alpha: 0,
         },
         onComplete: function() {
-          Event.emit(EVENT_PLAY_CLEAR);
-          Event.emit(EVENT_PLAY_CLEAN_BACKGROUND);
+          playNext();
         }
       }, 1);
   }
@@ -350,7 +361,7 @@ export class DialogView extends View {
         },
       }, 0);
 
-    Event.emit(EVENT_PLAT_CLEAN_HEAD_UP_DISPLAY);
+    Event.emit(EVENT_PLAY_CLEAN_HEAD_UP_DISPLAY);
 
     this.timeline
       .to(this.puzzlesView, {

@@ -54,11 +54,6 @@ export class GameController extends Controller {
       Event.emit(EVENT_UPDATE_PUZZLE_VIEW, x, y);
       Event.emit(EVENT_UPDATE_HINT_VIEW, x, y);
 
-      // setTimeout(() => {
-      //   console.log('EVENT_COMPLETE_PUZZLE')
-      //   Event.emit(EVENT_COMPLETE_PUZZLE);
-      // }, 1000);
-
       if (this.isCompleted()) {
         console.log('completed');
         Event.emit(EVENT_COMPLETE_PUZZLE);
@@ -95,6 +90,9 @@ export class GameController extends Controller {
   initAnswer(next) {
     const searchParams = Bottle.get('searchParams');
     const answer = searchParams.get('answer') || 'jjVYPNF.jpg';
+    const threshold = searchParams.get('threshold') || 128;
+    let width = parseInt(searchParams.get('width'));
+    let height = parseInt(searchParams.get('height'));
 
     console.log(`answer: ${answer}`);
 
@@ -104,33 +102,60 @@ export class GameController extends Controller {
         console.log('init answer')
         console.log(canvas);
 
-        this.gameModel.puzzleWidth = canvas.width;
-        this.gameModel.puzzleHeight = canvas.height;
+        width = width || canvas.width;
+        height = height || canvas.height;
+
+        this.gameModel.puzzleWidth = width;
+        this.gameModel.puzzleHeight = height;
 
         const context = canvas.getContext('2d');
         const data = context.getImageData(0, 0, canvas.width, canvas.height).data;
 
-        const answers = new Array(canvas.width);
+        const answers = new Array(width);
         for (let i = 0; i < answers.length; i++) {
-          answers[i] = new Array(canvas.height);
+          answers[i] = new Array(height);
         }
+
+        const ow = canvas.width / width;
+        const oh = canvas.height / height;
 
         for (let i = 0; i < answers.length; i++) {
           for (let j = 0; j < answers[i].length; j++) {
+            const ci = Math.floor(ow / 2) + i * ow;
+            const cj = Math.floor(oh / 2) + j * oh;
+
             answers[i][j] =
               (
-                data[(j * canvas.width + i) * 4] +
-                data[(j * canvas.width + i) * 4 + 1] +
-                data[(j * canvas.width + i) * 4 + 2]
-              ) / 3 < 128 ? BLOCK_BLACK : BLOCK_WHITE;
+                data[(cj * canvas.width + ci) * 4] +
+                data[(cj * canvas.width + ci) * 4 + 1] +
+                data[(cj * canvas.width + ci) * 4 + 2]
+              ) / 3 < threshold ? BLOCK_BLACK : BLOCK_WHITE;
 
-            if (data[(j * canvas.width + i) * 4 + 3] <= 128) {
-              answers[i][j] = BLOCK_WHITE;
-            }
-
-            console.log(`ans (${i}, ${j}) => rgb(${data[(j * canvas.width + i) * 4]}, ${data[(j * canvas.width + i) * 4 + 1]}, ${data[(j * canvas.width + i) * 4 + 2]}) alpha: ${data[(j * canvas.width + i) * 4 + 3]}`)
+            console.log(`ans (${i}, ${j}) => rgb(${data[(cj * canvas.width + ci) * 4]}, ${data[(cj * canvas.width + ci) * 4 + 1]}, ${data[(cj * canvas.width + ci) * 4 + 2]}) alpha: ${data[(cj * canvas.width + ci) * 4 + 3]}`)
           }
         }
+
+        // const answers = new Array(canvas.width);
+        // for (let i = 0; i < answers.length; i++) {
+        //   answers[i] = new Array(canvas.height);
+        // }
+        //
+        // for (let i = 0; i < answers.length; i++) {
+        //   for (let j = 0; j < answers[i].length; j++) {
+        //     answers[i][j] =
+        //       (
+        //         data[(j * canvas.width + i) * 4] +
+        //         data[(j * canvas.width + i) * 4 + 1] +
+        //         data[(j * canvas.width + i) * 4 + 2]
+        //       ) / 3 < threshold ? BLOCK_BLACK : BLOCK_WHITE;
+        //
+        //     if (data[(j * canvas.width + i) * 4 + 3] <= 128) {
+        //       answers[i][j] = BLOCK_WHITE;
+        //     }
+        //
+        //     console.log(`ans (${i}, ${j}) => rgb(${data[(j * canvas.width + i) * 4]}, ${data[(j * canvas.width + i) * 4 + 1]}, ${data[(j * canvas.width + i) * 4 + 2]}) alpha: ${data[(j * canvas.width + i) * 4 + 3]}`)
+        //   }
+        // }
 
         console.log("answer:");
         console.log(answers);
@@ -146,6 +171,9 @@ export class GameController extends Controller {
   initOrigin(next) {
     const searchParams = Bottle.get('searchParams');
     const origin = searchParams.get('origin') || 'jjVYPNF.jpg';
+    const bgcolor = parseInt(searchParams.get('bgcolor')) || 0x0;
+    let width = parseInt(searchParams.get('width'));
+    let height = parseInt(searchParams.get('height'));
 
     console.log(`answer: ${origin}`);
 
@@ -157,21 +185,37 @@ export class GameController extends Controller {
         const context = canvas.getContext('2d');
         const data = context.getImageData(0, 0, canvas.width, canvas.height).data;
 
-        const origins = new Array(canvas.width);
+        width = width || canvas.width;
+        height = height || canvas.height;
+
+        const origins = new Array(width);
         for (let i = 0; i < origins.length; i++) {
-          origins[i] = new Array(canvas.height);
+          origins[i] = new Array(height);
         }
+
+        const ow = canvas.width / width;
+        const oh = canvas.height / height;
 
         for (let i = 0; i < origins.length; i++) {
           for (let j = 0; j < origins[i].length; j++) {
-            origins[i][j] =
-              (
-                data[(j * canvas.width + i) * 4] * 256 * 256 +
-                data[(j * canvas.width + i) * 4 + 1] * 256 +
-                data[(j * canvas.width + i) * 4 + 2]
-              );
+            const ci = Math.floor(ow / 2) + i * ow;
+            const cj = Math.floor(oh / 2) + j * oh;
 
-            // console.log(`(${i}, ${j}) => rgb(${data[(j * canvas.width + i) * 4]}, ${data[(j * canvas.width + i) * 4 + 1]}, ${data[(j * canvas.width + i) * 4 + 2]})`)
+            if (data[(cj * canvas.width + ci) * 4] === 0 &&
+              data[(cj * canvas.width + ci) * 4 + 1] === 0 &&
+              data[(cj * canvas.width + ci) * 4 + 2] === 0 &&
+              data[(cj * canvas.width + ci) * 4 + 3] === 0) {
+              origins[i][j] = bgcolor;
+            } else {
+              origins[i][j] =
+                (
+                  data[(cj * canvas.width + ci) * 4] * 256 * 256 +
+                  data[(cj * canvas.width + ci) * 4 + 1] * 256 +
+                  data[(cj * canvas.width + ci) * 4 + 2]
+                );
+            }
+
+            console.log(`(${i}, ${j}) => rgb(${data[(cj * canvas.width + ci) * 4]}, ${data[(cj * canvas.width + ci) * 4 + 1]}, ${data[(cj * canvas.width + ci) * 4 + 2]})`)
           }
         }
 

@@ -36,6 +36,8 @@ export class BoardView extends View {
   private puzzleOffset: number = 10;
 
   private initScale: number;
+  private initX: number;
+  private initY: number;
   private currentScale: number;
   private currentX: number;
   private currentY: number;
@@ -131,6 +133,8 @@ export class BoardView extends View {
     );
 
     this.initScale = scale;
+    this.initX = this.x;
+    this.initY = this.y;
   }
 
   public pinchStart(e) {
@@ -171,5 +175,13 @@ export class BoardView extends View {
 
     this.pivot.x = 0;
     this.pivot.y = 0;
+  }
+
+  public isMoved() {
+    return !(this.x === this.initX && this.y === this.initY);
+  }
+
+  public isScaled() {
+    return !(this.scale.x === this.initScale && this.scale.y === this.initScale);
   }
 }

@@ -2,7 +2,6 @@ import * as PIXI from 'pixi.js';
 
 import {View} from '../../../framework/view';
 import Bottle from '../../../framework/bottle';
-import {BoardView} from './board-view';
 import {EVENT_INIT_PINCH, EVENT_REMOVE_PINCH} from '../../env/event';
 import Event from '../../../framework/event';
 

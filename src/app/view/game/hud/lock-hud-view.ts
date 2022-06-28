@@ -7,7 +7,7 @@ import Bottle from '../../../../framework/bottle';
 import {BLOCK_HEIGHT, BLOCK_WIDTH} from '../../../env/block';
 import {PuzzlesView} from '../board/puzzles-view';
 import Event from '../../../../framework/event';
-import {EVENT_INIT_PUZZLES_VIEW, EVENT_PLAT_CLEAN_HEAD_UP_DISPLAY, EVENT_UPDATE_LOCK} from '../../../env/event';
+import {EVENT_INIT_PUZZLES_VIEW, EVENT_PLAY_CLEAN_HEAD_UP_DISPLAY, EVENT_UPDATE_LOCK} from '../../../env/event';
 
 export class LockHudView extends View {
   private puzzlesView: PuzzlesView;
@@ -26,7 +26,7 @@ export class LockHudView extends View {
       this.initLock();
     });
 
-    Event.on(EVENT_PLAT_CLEAN_HEAD_UP_DISPLAY, () => {
+    Event.on(EVENT_PLAY_CLEAN_HEAD_UP_DISPLAY, () => {
       this.playClearLock();
     });
 

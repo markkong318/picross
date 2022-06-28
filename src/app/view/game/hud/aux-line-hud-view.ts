@@ -8,7 +8,7 @@ import {PuzzlesView} from '../board/puzzles-view';
 import Event from '../../../../framework/event';
 import {
   EVENT_INIT_PUZZLES_VIEW,
-  EVENT_PLAT_CLEAN_HEAD_UP_DISPLAY,
+  EVENT_PLAY_CLEAN_HEAD_UP_DISPLAY,
 } from '../../../env/event';
 import {GameModel} from '../../../model/game-model';
 
@@ -28,7 +28,7 @@ export class AuxLineHudView extends View {
       this.initLines();
     });
 
-    Event.on(EVENT_PLAT_CLEAN_HEAD_UP_DISPLAY, () => {
+    Event.on(EVENT_PLAY_CLEAN_HEAD_UP_DISPLAY, () => {
       this.playClearLines();
     });
 
