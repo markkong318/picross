@@ -91,8 +91,9 @@ export class GameController extends Controller {
     const searchParams = Bottle.get('searchParams');
     const answer = searchParams.get('answer') || 'jjVYPNF.jpg';
     const threshold = searchParams.get('threshold') || 128;
-    let width = parseInt(searchParams.get('width'));
-    let height = parseInt(searchParams.get('height'));
+    let width = searchParams.get('width') ? parseInt(searchParams.get('width')) : 0;
+    let height = searchParams.get('height') ? parseInt(searchParams.get('height')) : 0;
+    const block = searchParams.get('block') ? parseInt( searchParams.get('block')) : 0;
 
     console.log(`answer: ${answer}`);
 
@@ -102,8 +103,13 @@ export class GameController extends Controller {
         console.log('init answer')
         console.log(canvas);
 
-        width = width || canvas.width;
-        height = height || canvas.height;
+        if (block) {
+          width = canvas.width / block;
+          height = canvas.height / block;
+        } else {
+          width = width || canvas.width;
+          height = height || canvas.height;
+        }
 
         this.gameModel.puzzleWidth = width;
         this.gameModel.puzzleHeight = height;
@@ -135,28 +141,6 @@ export class GameController extends Controller {
           }
         }
 
-        // const answers = new Array(canvas.width);
-        // for (let i = 0; i < answers.length; i++) {
-        //   answers[i] = new Array(canvas.height);
-        // }
-        //
-        // for (let i = 0; i < answers.length; i++) {
-        //   for (let j = 0; j < answers[i].length; j++) {
-        //     answers[i][j] =
-        //       (
-        //         data[(j * canvas.width + i) * 4] +
-        //         data[(j * canvas.width + i) * 4 + 1] +
-        //         data[(j * canvas.width + i) * 4 + 2]
-        //       ) / 3 < threshold ? BLOCK_BLACK : BLOCK_WHITE;
-        //
-        //     if (data[(j * canvas.width + i) * 4 + 3] <= 128) {
-        //       answers[i][j] = BLOCK_WHITE;
-        //     }
-        //
-        //     console.log(`ans (${i}, ${j}) => rgb(${data[(j * canvas.width + i) * 4]}, ${data[(j * canvas.width + i) * 4 + 1]}, ${data[(j * canvas.width + i) * 4 + 2]}) alpha: ${data[(j * canvas.width + i) * 4 + 3]}`)
-        //   }
-        // }
-
         console.log("answer:");
         console.log(answers);
 
@@ -172,8 +156,9 @@ export class GameController extends Controller {
     const searchParams = Bottle.get('searchParams');
     const origin = searchParams.get('origin') || 'jjVYPNF.jpg';
     const bgcolor = parseInt(searchParams.get('bgcolor')) || 0x0;
-    let width = parseInt(searchParams.get('width'));
-    let height = parseInt(searchParams.get('height'));
+    let width = searchParams.get('width') ? parseInt(searchParams.get('width')) : 0;
+    let height = searchParams.get('height') ? parseInt(searchParams.get('height')) : 0;
+    const block = searchParams.get('block') ? parseInt( searchParams.get('block')) : 0;
 
     console.log(`answer: ${origin}`);
 
@@ -185,8 +170,13 @@ export class GameController extends Controller {
         const context = canvas.getContext('2d');
         const data = context.getImageData(0, 0, canvas.width, canvas.height).data;
 
-        width = width || canvas.width;
-        height = height || canvas.height;
+        if (block) {
+          width = canvas.width / block;
+          height = canvas.height / block;
+        } else {
+          width = width || canvas.width;
+          height = height || canvas.height;
+        }
 
         const origins = new Array(width);
         for (let i = 0; i < origins.length; i++) {

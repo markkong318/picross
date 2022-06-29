@@ -11,7 +11,7 @@ It supports
 
 Game which is forked from `parcel-pixijs-quickstarter` and apply MVC
 
-### Quick start
+## Quick start
 **Node version >= 8.0 (recommended 10.6.0) and NPM >= 5 (recommended 6.1.0)**
 
 ```bash
@@ -31,7 +31,7 @@ go to [http://localhost:1234](http://localhost:1234) in your browser. Done.
 
 DEMO: [https://markkong318.github.io/picross/](https://markkong318.github.io/picross/)
 
-### npm scripts
+## npm scripts
 
 * `npm run start` - runs the compiler and a server at the same time in dev mode with HMR (Hot Module Replacement) 🔥.
 * `npm run build` - runs the compiler once and generates a production build.
@@ -50,7 +50,7 @@ Prepare two same size jpg files (png has alpha channel problem, not suggested)
 
 Upload to imgur with directly download link
 
-### Upload
+## Upload
 
 The link format should be
 
@@ -64,14 +64,39 @@ You could use this tool to get the real imgur url
 https://imgur-direct-links.herokuapp.com/
 ```
 
-### Create link
+## Create link
 
 Append the text after `https://i.imgur.com/` as parameter
 
-- origin: origin image
-- answer: answer image
-- title: the text in the clear screen
+- origin: Origin image
+- answer: Answer image
+- title: The text in the clear screen
 
 ```
 https://markkong318.github.io/picross/?origin=jjVYPNF.jpg&answer=jjVYPNF.jpg&title=WARRIOR
 ```
+
+## Other parameters
+
+- width: Set the puzzle width
+- height: Set the puzzle height
+- block: Set the one block px on original image. Picross will divide it automatically
+- bgcolor: Color on board when complete puzzle
+- threshold: Gray level threshold for answer image
+- god: Set 1 will fill all automatically. It is for debug
+
+## Example puzzles
+
+### https://dotown.maeda-design-room.net/
+
+- earphone:
+
+https://markkong318.github.io/picross/?origin=Sdl2mII.jpg&answer=Sdl2mII.jpg&god=1&block=60&threshold=1&title=earphone&bgcolor=0xFFFFFF
+
+- yellow tree
+
+https://markkong318.github.io/picross/?origin=52VhNdK.jpg&answer=52VhNdK.jpg&god=1&block=60&threshold=1&title=yellow%20tree&bgcolor=0xFFFFFF
+
+- taco
+
+https://markkong318.github.io/picross/?origin=zfeYkdf.jpg&answer=zfeYkdf.jpg&god=1&block=60&threshold=1&title=taco&bgcolor=0xFFFFFF
