@@ -81,7 +81,7 @@ https://markkong318.github.io/picross/?origin=jjVYPNF.jpg&answer=jjVYPNF.jpg&tit
 - width: Set the puzzle width
 - height: Set the puzzle height
 - block: Set the one block px on original image. Picross will divide it automatically
-- bgcolor: Color on board when complete puzzle
+- bgcolor: Convert transparent (color rgb(0,0,0) with 255 transparent) to specific color
 - threshold: Gray level threshold for answer image
 - god: Set 1 will fill all automatically. It is for debug
 
@@ -91,12 +91,16 @@ https://markkong318.github.io/picross/?origin=jjVYPNF.jpg&answer=jjVYPNF.jpg&tit
 
 - earphone:
 
-https://markkong318.github.io/picross/?origin=Sdl2mII.jpg&answer=Sdl2mII.jpg&god=1&block=60&threshold=1&title=earphone&bgcolor=0xFFFFFF
+https://markkong318.github.io/picross/?origin=Sdl2mII.jpg&answer=Sdl2mII.jpg&god=1&block=60&threshold=128&title=earphone&bgcolor=0xFFFFFF
 
 - yellow tree
 
-https://markkong318.github.io/picross/?origin=52VhNdK.jpg&answer=52VhNdK.jpg&god=1&block=60&threshold=1&title=yellow%20tree&bgcolor=0xFFFFFF
+https://markkong318.github.io/picross/?origin=52VhNdK.jpg&answer=52VhNdK.jpg&god=1&block=60&threshold=200&title=yellow%20tree&bgcolor=0xFFFFFF
 
 - taco
 
-https://markkong318.github.io/picross/?origin=zfeYkdf.jpg&answer=zfeYkdf.jpg&god=1&block=60&threshold=1&title=taco&bgcolor=0xFFFFFF
+https://markkong318.github.io/picross/?origin=zfeYkdf.jpg&answer=zfeYkdf.jpg&god=1&block=60&threshold=128&title=taco&bgcolor=0xFFFFFF
+
+- green alien
+
+https://markkong318.github.io/picross/?origin=aDBaMGw.jpg&answer=aDBaMGw.jpg&god=1&block=60&threshold=128&title=green%20alien&bgcolor=0xFFFFFF

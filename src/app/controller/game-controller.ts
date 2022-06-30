@@ -91,6 +91,7 @@ export class GameController extends Controller {
     const searchParams = Bottle.get('searchParams');
     const answer = searchParams.get('answer') || 'jjVYPNF.jpg';
     const threshold = searchParams.get('threshold') || 128;
+    const bgcolor = parseInt(searchParams.get('bgcolor')) || 0x0;
     let width = searchParams.get('width') ? parseInt(searchParams.get('width')) : 0;
     let height = searchParams.get('height') ? parseInt(searchParams.get('height')) : 0;
     const block = searchParams.get('block') ? parseInt( searchParams.get('block')) : 0;
@@ -130,12 +131,20 @@ export class GameController extends Controller {
             const ci = Math.floor(ow / 2) + i * ow;
             const cj = Math.floor(oh / 2) + j * oh;
 
-            answers[i][j] =
-              (
-                data[(cj * canvas.width + ci) * 4] +
-                data[(cj * canvas.width + ci) * 4 + 1] +
-                data[(cj * canvas.width + ci) * 4 + 2]
-              ) / 3 < threshold ? BLOCK_BLACK : BLOCK_WHITE;
+            if (data[(cj * canvas.width + ci) * 4] === 0 &&
+              data[(cj * canvas.width + ci) * 4 + 1] === 0 &&
+              data[(cj * canvas.width + ci) * 4 + 2] === 0 &&
+              data[(cj * canvas.width + ci) * 4 + 3] === 0) {
+              answers[i][j] = ((bgcolor & 0xFF) + (bgcolor >> 8 & 0xFF) + (bgcolor >> 16 & 0xFF)) / 3 < threshold ?
+                BLOCK_BLACK : BLOCK_WHITE;
+            } else {
+              answers[i][j] =
+                (
+                  data[(cj * canvas.width + ci) * 4] +
+                  data[(cj * canvas.width + ci) * 4 + 1] +
+                  data[(cj * canvas.width + ci) * 4 + 2]
+                ) / 3 < threshold ? BLOCK_BLACK : BLOCK_WHITE;
+            }
 
             console.log(`ans (${i}, ${j}) => rgb(${data[(cj * canvas.width + ci) * 4]}, ${data[(cj * canvas.width + ci) * 4 + 1]}, ${data[(cj * canvas.width + ci) * 4 + 2]}) alpha: ${data[(cj * canvas.width + ci) * 4 + 3]}`)
           }
